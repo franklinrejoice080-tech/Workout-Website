@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCEND — Become 1% Better Every Day</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>ASCEND</div>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#workouts">Workouts</a></li>
+      <li><a href="#challenges">Challenges</a></li>
+      <li><a href="#nutrition">Nutrition</a></li>
+      <li><a href="#progress">Progress</a></li>
+      <li><a href="#community">Community</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <div class="nav-cta" id="navAuth">
+      <a href="#" class="btn-ghost" onclick="openAuthModal('login'); return false;">Login</a>
+      <a href="#" class="btn-solid" onclick="openAuthModal('signup'); return false;">Sign Up</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="wrap hero-content">
+    <div class="eyebrow"><span class="line"></span>Day 47 of your ascent</div>
+    <h1 class="headline">Become <em>1% Better</em><br>Every Day.</h1>
+    <p class="sub">Build strength, discipline, and consistency through daily workouts designed for everyone — no matter where you're starting from.</p>
+    <div class="hero-actions">
+      <a href="#daily" class="btn-primary" id="startTodayWorkoutBtn">▶ Start Today's Workout</a>
+      <a href="#workouts" class="btn-secondary">Explore Plans</a>
+    </div>
+    <div class="hero-creator reveal">
+      <div class="creator-shell">
+        <div>
+          <span class="eyebrow-sm">Built by</span>
+          <h2 class="section-title">Rejoice Franklin</h2>
+        </div>
+        <div class="creator-links">
+          <a href="mailto:franklinrejoice080@gmail.com">Email: franklinrejoice080@gmail.com</a>
+          <a href="https://instagram.com/lantrec_" target="_blank" rel="noopener">Instagram: @lantrec_</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><b>ASCEND</b><span>By Franklin</span></div>
+  </div>
+</section>
+
+<!-- ============ DAILY WORKOUT ============ -->
+<section class="daily" id="daily">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Today's Assignment</span>
+        <h2 class="section-title">One focused workout,<br>chosen for you.</h2>
+      </div>
+      <p class="section-desc">Every day we hand-pick a single session so you never have to think — just show up and move.</p>
+    </div>
+
+    <div class="daily-card reveal">
+      <div class="daily-media">
+        <span class="daily-tag">� Strength</span>
+        <div class="daily-title-overlay">
+          <h3>Strength Workout</h3>
+        </div>
+      </div>
+      <div class="daily-body">
+        <div class="daily-meta">
+          <div class="meta-item"><span class="n">35m</span><span class="l">Duration</span></div>
+          <div class="meta-item"><span class="n">Inter.</span><span class="l">Difficulty</span></div>
+          <div class="meta-item"><span class="n">320</span><span class="l">Calories</span></div>
+          <div class="meta-item"><span class="n">Dumbbells</span><span class="l">Equipment</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.06em; color:var(--gray);">Exercises</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <span style="padding:8px 12px; border-radius:999px; background:rgba(245,245,242,0.05); border:1px solid var(--line); font-size:13px; color:var(--beige);">✔ Push Ups</span>
+            <span style="padding:8px 12px; border-radius:999px; background:rgba(245,245,242,0.05); border:1px solid var(--line); font-size:13px; color:var(--beige);">✔ Bench Press</span>
+            <span style="padding:8px 12px; border-radius:999px; background:rgba(245,245,242,0.05); border:1px solid var(--line); font-size:13px; color:var(--beige);">✔ Shoulder Press</span>
+            <span style="padding:8px 12px; border-radius:999px; background:rgba(245,245,242,0.05); border:1px solid var(--line); font-size:13px; color:var(--beige);">✔ Rows</span>
+            <span style="padding:8px 12px; border-radius:999px; background:rgba(245,245,242,0.05); border:1px solid var(--line); font-size:13px; color:var(--beige);">✔ Plank</span>
+          </div>
+        </div>
+        <div class="ring-row">
+          <div class="ring-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96">
+              <circle class="ring-bg" cx="48" cy="48" r="40"></circle>
+              <circle class="ring-fg" id="dailyRing" cx="48" cy="48" r="40"></circle>
+            </svg>
+            <div class="ring-label" id="ringPct">0%</div>
+          </div>
+          <div class="ring-text"><b>Today's Progress</b><span>Complete the workout to fill your ring</span></div>
+        </div>
+        <button class="start-btn" id="startWorkoutBtn" onclick="startWorkout()">▶ Start Workout</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATEGORIES ============ -->
+<section id="workouts">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Workout Categories</span>
+        <h2 class="section-title">Every path up the mountain.</h2>
+      </div>
+      <p class="section-desc">Pick a discipline, or let your goal choose it for you.</p>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+</section>
+
+<!-- ============ GENERATOR ============ -->
+<section class="generator">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Personalized Plan</span>
+        <h2 class="section-title">Your workout, engineered for you.</h2>
+      </div>
+      <p class="section-desc">Answer a few questions. We'll generate a plan that fits your body, goal, and schedule.</p>
+    </div>
+
+    <div class="gen-shell reveal">
+      <div class="gen-form">
+        <h3>Build Your Plan</h3>
+        <p>Takes less than a minute.</p>
+        <div class="form-row">
+          <div class="field"><label>Age</label><input type="number" id="gAge" placeholder="28"></div>
+          <div class="field"><label>Gender</label>
+            <select id="gGender"><option>Male</option><option>Female</option><option>Other</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Height (cm)</label><input type="number" id="gHeight" placeholder="175"></div>
+          <div class="field"><label>Weight (kg)</label><input type="number" id="gWeight" placeholder="70"></div>
+        </div>
+        <div class="field" style="margin-bottom:18px;">
+          <label>Fitness Level</label>
+          <div class="chip-group" data-group="level">
+            <div class="chip active" data-val="Beginner">Beginner</div>
+            <div class="chip" data-val="Intermediate">Intermediate</div>
+            <div class="chip" data-val="Advanced">Advanced</div>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:18px;">
+          <label>Goal</label>
+          <div class="chip-group" data-group="goal">
+            <div class="chip active" data-val="Lose Fat">Lose Fat</div>
+            <div class="chip" data-val="Build Muscle">Build Muscle</div>
+            <div class="chip" data-val="Endurance">Endurance</div>
+            <div class="chip" data-val="Mobility">Mobility</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Time Available</label>
+            <select id="gTime"><option>15 min</option><option selected>30 min</option><option>45 min</option><option>60 min</option></select>
+          </div>
+          <div class="field"><label>Days / Week</label>
+            <select id="gDays"><option>3</option><option selected>4</option><option>5</option><option>6</option></select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:6px;">
+          <label>Equipment</label>
+          <div class="chip-group" data-group="equip">
+            <div class="chip active" data-val="Bodyweight">Bodyweight</div>
+            <div class="chip" data-val="Dumbbells">Dumbbells</div>
+            <div class="chip" data-val="Full Gym">Full Gym</div>
+          </div>
+        </div>
+        <button class="gen-submit" onclick="generatePlan()">Generate My Plan</button>
+      </div>
+      <div class="gen-result" id="genResult">
+        <div class="plan-empty">Your personalized weekly plan will appear here once generated →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRESS DASHBOARD ============ -->
+<section id="progress">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Progress Dashboard</span>
+        <h2 class="section-title">The mountain behind you.</h2>
+      </div>
+      <p class="section-desc">Every rep, every rest day, every streak — tracked automatically.</p>
+    </div>
+
+    <div class="dash-grid reveal">
+      <div class="dash-card"><div class="label">Workout Streak</div><div class="val" id="statStreak">0</div><div class="delta">days in a row</div></div>
+      <div class="dash-card"><div class="label">Calories Burned</div><div class="val" id="statCal">0</div><div class="delta">this week</div></div>
+      <div class="dash-card"><div class="label">Hours Trained</div><div class="val" id="statHours">0</div><div class="delta">this month</div></div>
+      <div class="dash-card"><div class="label">Current Weight</div><div class="val green">76.2 kg</div><div class="delta">-1.4kg this month</div></div>
+    </div>
+
+    <div class="dash-wide reveal">
+      <div class="chart-card">
+        <h4>Weekly Activity (minutes)</h4>
+        <div class="bars" id="barChart"></div>
+      </div>
+      <div class="chart-card">
+        <h4>Muscle Groups Trained</h4>
+        <div class="ring-list" id="ringList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHALLENGES ============ -->
+<section class="daily" id="challenges">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Challenges</span>
+        <h2 class="section-title">Prove it to yourself.</h2>
+      </div>
+      <p class="section-desc">Structured streaks with a clear finish line — and a badge to show for it.</p>
+    </div>
+    <div class="chal-grid" id="chalGrid"></div>
+  </div>
+</section>
+
+<!-- ============ NUTRITION ============ -->
+<section id="nutrition">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Nutrition</span>
+        <h2 class="section-title">Fuel matches effort.</h2>
+      </div>
+      <p class="section-desc">Quick calculators to keep your plate aligned with your training.</p>
+    </div>
+    <div class="nutri-tools reveal">
+      <div class="tool-card">
+        <h4>BMI Calculator</h4>
+        <div class="field"><label>Height (cm)</label><input type="number" id="bmiH" placeholder="175"></div>
+        <div class="field"><label>Weight (kg)</label><input type="number" id="bmiW" placeholder="70"></div>
+        <button class="tool-btn" onclick="calcBMI()">Calculate BMI</button>
+        <div class="tool-result" id="bmiOut"></div>
+      </div>
+      <div class="tool-card">
+        <h4>Calorie Calculator</h4>
+        <div class="field"><label>Weight (kg)</label><input type="number" id="calW" placeholder="70"></div>
+        <div class="field"><label>Activity Level</label>
+          <select id="calAct"><option value="1.2">Sedentary</option><option value="1.5" selected>Moderate</option><option value="1.8">Very Active</option></select>
+        </div>
+        <button class="tool-btn" onclick="calcCalories()">Calculate Calories</button>
+        <div class="tool-result" id="calOut"></div>
+      </div>
+      <div class="tool-card">
+        <h4>Protein Calculator</h4>
+        <div class="field"><label>Weight (kg)</label><input type="number" id="protW" placeholder="70"></div>
+        <div class="field"><label>Goal</label>
+          <select id="protGoal"><option value="1.6">Maintenance</option><option value="2.0" selected>Muscle Gain</option><option value="2.2">Fat Loss (preserve muscle)</option></select>
+        </div>
+        <button class="tool-btn" onclick="calcProtein()">Calculate Protein</button>
+        <div class="tool-result" id="protOut"></div>
+      </div>
+      <div class="tool-card">
+        <h4>Water Intake</h4>
+        <div class="field"><label>Weight (kg)</label><input type="number" id="waterW" placeholder="70"></div>
+        <button class="tool-btn" onclick="calcWater()">Calculate Water</button>
+        <div class="tool-result" id="waterOut"></div>
+      </div>
+      <div class="tool-card">
+        <h4>Macro Split</h4>
+        <div class="field"><label>Daily Calories</label><input type="number" id="macCal" placeholder="2400"></div>
+        <button class="tool-btn" onclick="calcMacros()">Calculate Macros</button>
+        <div class="tool-result" id="macOut"></div>
+      </div>
+      <div class="tool-card">
+        <h4>Today's Meal Suggestion</h4>
+        <p style="font-size:13px;color:var(--gray);line-height:1.6;">Grilled chicken breast, quinoa, roasted vegetables, and a drizzle of olive oil — balanced for a training day.</p>
+        <button class="tool-btn" onclick="newMeal()">Suggest Another</button>
+        <div class="tool-result show" id="mealOut" style="color:var(--beige); background:rgba(245,245,242,0.04); border-color:var(--line);">Grilled chicken, quinoa & greens</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOTIVATION ============ -->
+<section class="motivation">
+  <div class="wrap">
+    <div class="quote-mark">"</div>
+    <div class="quote-text" id="quoteText">Discipline is choosing between what you want now and what you want most.</div>
+    <div class="quote-author" id="quoteAuthor">Quote of the Day</div>
+  </div>
+</section>
+
+<!-- ============ COMMUNITY ============ -->
+<section id="community">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">Community</span>
+        <h2 class="section-title">You're not climbing alone.</h2>
+      </div>
+      <p class="section-desc">Share progress, celebrate wins, and push each other further.</p>
+    </div>
+    <div class="comm-grid reveal">
+      <div class="post-card">
+        <div class="post-media" style="background-image:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800&auto=format&fit=crop')"></div>
+        <div class="post-body">
+          <div class="post-user"><div class="avatar">M</div><div><b>Maya R.</b><span>30-Day Transformation · Day 30</span></div></div>
+          <p>Finished the full 30 days. Down 4kg, up in every lift. Onto the next one.</p>
+          <div class="post-actions"><span class="liked">♥ 214</span><span>💬 38</span></div>
+        </div>
+      </div>
+      <div class="post-card">
+        <div class="post-media" style="background-image:url('https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?q=80&w=800&auto=format&fit=crop')"></div>
+        <div class="post-body">
+          <div class="post-user"><div class="avatar">J</div><div><b>Jordan K.</b><span>Strength Training</span></div></div>
+          <p>New deadlift PR this morning. 47-day streak still alive.</p>
+          <div class="post-actions"><span class="liked">♥ 156</span><span>💬 22</span></div>
+        </div>
+      </div>
+      <div class="post-card">
+        <div class="post-media" style="background-image:url('https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=800&auto=format&fit=crop')"></div>
+        <div class="post-body">
+          <div class="post-user"><div class="avatar">A</div><div><b>Amara T.</b><span>Beginner Group</span></div></div>
+          <p>First HIIT session ever. Wrecked, but showed up. That's the whole game.</p>
+          <div class="post-actions"><span>♥ 98</span><span>💬 15</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AI COACH ============ -->
+<section class="daily" id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <span class="eyebrow-sm">AI Fitness Coach</span>
+        <h2 class="section-title">Ask anything, anytime.</h2>
+      </div>
+      <p class="section-desc">Form checks, recovery advice, nutrition guidance — always available.</p>
+    </div>
+    <div class="coach-shell reveal">
+      <div class="coach-side">
+        <h4>Ask the Coach</h4>
+        <p>Try one of these, or type your own question.</p>
+        <button class="suggest-chip" onclick="askCoach('How do I fix my squat form?')">How do I fix my squat form?</button>
+        <button class="suggest-chip" onclick="askCoach('What should I eat before a workout?')">What should I eat before a workout?</button>
+        <button class="suggest-chip" onclick="askCoach('How do I prevent knee pain when running?')">How do I prevent knee pain when running?</button>
+        <button class="suggest-chip" onclick="askCoach('How many rest days do I need?')">How many rest days do I need?</button>
+      </div>
+      <div class="coach-main">
+        <div class="coach-msgs" id="coachMsgs">
+          <div class="msg bot">Hey — I'm your ASCEND coach. Ask me about form, recovery, or nutrition and I'll walk you through it.</div>
+        </div>
+        <div class="coach-input">
+          <input type="text" id="coachInput" placeholder="Ask your coach anything..." onkeydown="if(event.key==='Enter')sendCoach()">
+          <button onclick="sendCoach()">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <div class="logo" style="margin-bottom:16px;"><span class="dot"></span>ASCEND</div>
+        <p style="font-size:13px;color:var(--gray);line-height:1.6;max-width:280px;">A daily training system for people who want to get 1% better, every single day.</p>
+      </div>
+      <div class="foot-col"><h5>Company</h5>
+        <a href="#about">About</a><a href="#">Privacy Policy</a><a href="#">Terms</a><a href="#">FAQ</a>
+      </div>
+      <div class="foot-col"><h5>Connect</h5>
+        <a href="https://instagram.com/lantrec_" target="_blank" rel="noopener">Instagram — @lantrec_</a>
+        <a href="mailto:franklinrejoice080@gmail.com">franklinrejoice080@gmail.com</a>
+      </div>
+      <div class="foot-col"><h5>Product</h5>
+        <a href="#workouts">Workouts</a><a href="#nutrition">Nutrition</a><a href="#challenges">Challenges</a><a href="#progress">Progress</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 ASCEND. All rights reserved.</span>
+      <span>Designed &amp; built by Franklin.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="bottom-nav">
+  <a href="#home" class="active"><span class="ic">⌂</span>Home</a>
+  <a href="#workouts"><span class="ic">🏋</span>Train</a>
+  <a href="#progress"><span class="ic">📈</span>Progress</a>
+  <a href="#nutrition"><span class="ic">🍽</span>Fuel</a>
+  <a href="#community"><span class="ic">👥</span>Community</a>
+</div>
+
+<div class="modal-overlay" id="authOverlay" aria-hidden="true">
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="modal-close" type="button" onclick="closeAuthModal()" aria-label="Close authentication dialog">×</button>
+    <div class="auth-head">
+      <div class="eyebrow-sm">Welcome</div>
+      <h3 id="authTitle">Log in to ASCEND</h3>
+      <p id="authSubtitle">Access your daily plan, progress, and coach.</p>
+    </div>
+    <form class="auth-form" id="authForm" novalidate>
+      <div class="field hidden" id="signupNameWrap">
+        <label for="signupName">Name</label>
+        <input type="text" id="signupName" name="name" autocomplete="name" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input type="email" id="authEmail" name="email" autocomplete="email" required placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="authPassword" name="password" autocomplete="current-password" required placeholder="Enter password">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('authPassword', this)" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <div class="field hidden" id="confirmPasswordWrap">
+        <label for="authConfirmPassword">Confirm Password</label>
+        <div class="password-wrap">
+          <input type="password" id="authConfirmPassword" name="confirmPassword" autocomplete="new-password" placeholder="Confirm password">
+          <button class="password-toggle" type="button" onclick="togglePasswordVisibility('authConfirmPassword', this)" aria-label="Show password">👁</button>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <label>
+          <input type="checkbox" id="authRemember">
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="auth-link" onclick="handleForgotPassword(); return false;">Forgot password?</a>
+      </div>
+      <div class="auth-error" id="authError" aria-live="polite"></div>
+      <div class="auth-success" id="authSuccess" aria-live="polite"></div>
+      <div class="auth-actions">
+        <button class="auth-submit" id="authSubmitBtn" type="submit">Log In</button>
+      </div>
+    </form>
+    <div class="auth-switch">
+      <span id="authSwitchText">Don’t have an account?</span>
+      <button type="button" class="auth-link-button" id="authSwitchBtn" onclick="switchAuthMode()">Create one</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Workout complete — great work! 🎉</div>
+
+<div class="workout-session-overlay" id="workoutSessionOverlay" aria-hidden="true">
+  <div class="workout-session-card" role="dialog" aria-modal="true" aria-labelledby="workoutSessionTitle">
+    <div id="workoutSessionViewport"></div>
+    <div class="workout-session-actions" id="workoutSessionActions" style="margin-top:20px;"></div>
+  </div>
+</div>
+
+<<script src="js/script.js?v=workout-3"></script>
+<script src="js/storage.js"></script>
+<script src="js/workoutEngine.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/xpSystem.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/aiCoach.js"></script>
+<script src="js/animations.js"></script>
+</body>
+</html>

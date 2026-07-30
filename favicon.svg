@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ASCEND favicon">
+  <rect width="64" height="64" rx="16" fill="#111111"/>
+  <path d="M18 16h28l-8 12 8 12H18l8-12-8-12z" fill="#D72638"/>
+  <path d="M25 24h14" stroke="#F5F5F2" stroke-width="2" stroke-linecap="round"/>
+</svg>
