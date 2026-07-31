@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 
@@ -205,10 +206,62 @@
     </div>
 
     <div class="dash-grid reveal">
-      <div class="dash-card"><div class="label">Workout Streak</div><div class="val" id="statStreak">0</div><div class="delta">days in a row</div></div>
-      <div class="dash-card"><div class="label">Calories Burned</div><div class="val" id="statCal">0</div><div class="delta">this week</div></div>
-      <div class="dash-card"><div class="label">Hours Trained</div><div class="val" id="statHours">0</div><div class="delta">this month</div></div>
-      <div class="dash-card"><div class="label">Current Weight</div><div class="val green">76.2 kg</div><div class="delta">-1.4kg this month</div></div>
+      <div class="dash-card"><div class="label">Total Workouts</div><div class="val" id="statWorkouts">0</div><div class="delta">completed</div></div>
+      <div class="dash-card"><div class="label">Total Minutes</div><div class="val" id="statMinutes">0 min</div><div class="delta">time active</div></div>
+      <div class="dash-card"><div class="label">Calories Burned</div><div class="val" id="statCalories">0 kcal</div><div class="delta">total burned</div></div>
+      <div class="dash-card">
+        <div class="label">Current Streak</div>
+        <div class="val green" id="statStreak">0 days</div>
+        <div class="streak-motivation" id="streakMotivation">Every journey starts with one workout.</div>
+      </div>
+    </div>
+
+    <!-- ============ TODAY'S GOAL & WEEKLY CALENDAR ============ -->
+    <div class="dash-grid-secondary reveal">
+      <div class="dash-card goal-card" id="todayGoalCard">
+        <div class="label">Today's Goal</div>
+        <div class="goal-header">
+          <div class="val" style="font-size:20px;">Complete 1 Workout</div>
+          <span class="goal-badge pending" id="todayGoalBadge">○ Not completed</span>
+        </div>
+        <div class="goal-meta" id="todayGoalMeta">
+          <span>Est. Time: <b>35m</b></span>
+          <span>Est. Calories: <b>320 kcal</b></span>
+        </div>
+      </div>
+
+      <div class="dash-card calendar-card" id="weeklyCalendarCard">
+        <div class="label">Weekly Training Calendar</div>
+        <div class="weekly-calendar" id="weeklyCalendarGrid">
+          <!-- 7 day pills populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ XP PROGRESS CARD ============ -->
+    <div class="xp-card reveal" id="xpCard">
+      <div class="xp-header">
+        <div class="xp-badge-wrap">
+          <div class="xp-level-badge" id="xpLevelBadge">Level 1</div>
+          <div class="xp-title-group">
+            <h3>Player Rank</h3>
+            <span class="xp-subtitle" id="xpRankSubtitle">Ascending Athlete</span>
+          </div>
+        </div>
+        <div class="xp-meta-text">
+          <span class="xp-val-large" id="xpTotalVal">0 XP</span>
+          <span class="xp-sub-val" id="xpNextVal">0 / 300 XP</span>
+        </div>
+      </div>
+
+      <div class="xp-progress-bar-container">
+        <div class="xp-progress-bar-fill" id="xpBarFill" style="width: 0%;"></div>
+      </div>
+
+      <div class="xp-footer">
+        <span class="xp-needed-text" id="xpNeededText">300 XP until Level 2</span>
+        <span class="xp-percent-text" id="xpPercentText">0%</span>
+      </div>
     </div>
 
     <div class="dash-wide reveal">
@@ -470,7 +523,7 @@
   </div>
 </div>
 
-<<script src="js/script.js?v=workout-3"></script>
+<script src="js/script.js?v=workout-3"></script>
 <script src="js/storage.js"></script>
 <script src="js/workoutEngine.js"></script>
 <script src="js/timer.js"></script>

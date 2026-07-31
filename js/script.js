@@ -420,6 +420,17 @@ function formatTime(s){
   return `${mm}:${ss}`;
 }
 
+function logSessionToDashboard(session){
+  if(!session || session._dashboardLogged) return;
+  session._dashboardLogged = true;
+  if(window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.recordCompletedWorkout === 'function'){
+    window.ASCEND_DASHBOARD.recordCompletedWorkout(session);
+  }
+  if(window.ASCEND_XP && typeof window.ASCEND_XP.completeWorkout === 'function'){
+    window.ASCEND_XP.completeWorkout();
+  }
+}
+
 function startExerciseTimer(session){
   if(!session) return;
   // prevent multiple timers
@@ -458,6 +469,7 @@ function startExerciseTimer(session){
       const hasNext = Array.isArray(session.exercises) && (nextIndex < session.exercises.length);
       renderWorkoutSession();
       showToast('Exercise Complete');
+
       if(hasNext){
         // begin rest automatically before next exercise
         startRestTimer(session);
@@ -465,6 +477,7 @@ function startExerciseTimer(session){
         // final exercise — mark workout complete
         session.status = 'completed';
         workoutEngine.markWorkoutComplete(session);
+        logSessionToDashboard(session);
         renderWorkoutSession();
       }
       return;
@@ -546,6 +559,7 @@ function startRestTimer(session){
     session.status = 'completed';
 
     workoutEngine.markWorkoutComplete(session);
+    logSessionToDashboard(session);
 
     // Award XP and save workout
     if(window.ASCEND_XP){
@@ -857,6 +871,7 @@ function skipExercise(){
   activeSession._exerciseComplete = false;
   renderWorkoutSession();
   if(result && result.completed){
+    logSessionToDashboard(activeSession);
     showToast('Workout complete — great work! 🎉');
   } else {
     showToast('Exercise skipped.');
@@ -870,6 +885,7 @@ function endWorkout(){
   pauseTimer(activeSession);
   activeSession.status = 'completed';
   workoutEngine.markWorkoutComplete(activeSession);
+  logSessionToDashboard(activeSession);
   currentWorkoutSession = activeSession;
   workoutEngine.setActiveSession(activeSession);
   renderWorkoutSession();
@@ -959,26 +975,21 @@ function generatePlan(){
 }
 
 /* ---------- dashboard counters ---------- */
-function animateCount(el, target, suffix=''){
-  let cur = 0;
-  const step = Math.max(1, Math.ceil(target/40));
-  const iv = setInterval(()=>{
-    cur += step;
-    if(cur>=target){ cur = target; clearInterval(iv); }
-    el.textContent = cur + suffix;
-  }, 30);
-}
 const dashObserver = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
     if(e.isIntersecting){
-      animateCount(document.getElementById('statStreak'), 47);
-      animateCount(document.getElementById('statCal'), 3120);
-      animateCount(document.getElementById('statHours'), 22);
+      if(window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.renderDashboard === 'function'){
+        window.ASCEND_DASHBOARD.renderDashboard(true);
+      }
+      if(window.ASCEND_XP && typeof window.ASCEND_XP.renderXP === 'function'){
+        window.ASCEND_XP.renderXP(true);
+      }
       dashObserver.disconnect();
     }
   });
 },{threshold:0.3});
-dashObserver.observe(document.getElementById('progress'));
+const progressSection = document.getElementById('progress');
+if(progressSection) dashObserver.observe(progressSection);
 
 /* bar chart */
 const barData = [{d:'Mon',v:42},{d:'Tue',v:58},{d:'Wed',v:20},{d:'Thu',v:65},{d:'Fri',v:48},{d:'Sat',v:75},{d:'Sun',v:30}];
