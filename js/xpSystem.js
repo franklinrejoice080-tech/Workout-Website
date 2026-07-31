@@ -83,12 +83,74 @@ function completeWorkout() {
 
     savePlayer();
 }
+/* ------------------------------
+   XP PROGRESS
+------------------------------ */
 
+function getCurrentLevelXP(level){
+
+    if(level <= 1) return 0;
+
+    if(level === 2) return 300;
+
+    if(level === 3) return 700;
+
+    if(level === 4) return 1200;
+
+    return 1800 + ((level - 5) * 700);
+
+}
+
+function getNextLevelXP(level){
+
+    if(level === 1) return 300;
+
+    if(level === 2) return 700;
+
+    if(level === 3) return 1200;
+
+    if(level === 4) return 1800;
+
+    return 1800 + ((level - 4) * 700);
+
+}
+
+function getXPProgress(){
+
+    const current = getCurrentLevelXP(player.level);
+
+    const next = getNextLevelXP(player.level);
+
+    const progress = player.xp - current;
+
+    const needed = next - current;
+
+    return {
+
+        currentXP: player.xp,
+
+        current,
+
+        next,
+
+        progress,
+
+        needed,
+
+        percent: Math.min(
+            100,
+            Math.round((progress / needed) * 100)
+        )
+
+    };
+
+}
 /* ------------------------------
    PUBLIC
 ------------------------------ */
 
 window.ASCEND_XP = {
+
 
     getPlayer() {
         return player;
@@ -96,6 +158,7 @@ window.ASCEND_XP = {
 
     completeWorkout,
 
-    addXP
+    addXP,
 
+    getXPPROGRESS
 };

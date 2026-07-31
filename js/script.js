@@ -537,18 +537,26 @@ function startRestTimer(session){
       session._restRemaining = 0;
       session._inRest = false;
       // advance to next exercise and start it
-      const result = workoutEngine.advanceToNextExercise(session);
       workoutEngine.setActiveSession(session);
       // reset any per-exercise state for the new exercise
       session._exerciseRemaining = undefined;
       session._exerciseComplete = false;
       renderWorkoutSession();
       if(result && result.completed){
-        session.status = 'completed';
-        workoutEngine.markWorkoutComplete(session);
-        renderWorkoutSession();
-        showToast('Workout complete — great work! 🎉');
-      } else {
+    session.status = 'completed';
+
+    workoutEngine.markWorkoutComplete(session);
+
+    // Award XP and save workout
+    if(window.ASCEND_XP){
+        window.ASCEND_XP.completeWorkout();
+    }
+
+    renderWorkoutSession();
+
+    showToast("Workout Complete! +120 XP 💪");
+
+} else {
         // start next exercise automatically
         startExerciseTimer(session);
       }
@@ -557,6 +565,7 @@ function startRestTimer(session){
     renderWorkoutSession();
   }, 1000);
 }
+      const result = workoutEngine.advanceToNextExercise(session);
 
 function getWorkoutSessionActionMarkup(session){
   if(!session) return '';
