@@ -214,6 +214,11 @@
         <div class="val green" id="statStreak">0 days</div>
         <div class="streak-motivation" id="streakMotivation">Every journey starts with one workout.</div>
       </div>
+      <div class="dash-card">
+        <div class="label">Achievements Unlocked</div>
+        <div class="val" id="statAchievements">0</div>
+        <div class="delta" id="statAchievementsTotal">of 30 earned</div>
+      </div>
     </div>
 
     <!-- ============ TODAY'S GOAL & WEEKLY CALENDAR ============ -->
@@ -261,6 +266,20 @@
       <div class="xp-footer">
         <span class="xp-needed-text" id="xpNeededText">300 XP until Level 2</span>
         <span class="xp-percent-text" id="xpPercentText">0%</span>
+      </div>
+    </div>
+
+    <!-- ============ ACHIEVEMENTS ============ -->
+    <div class="achievements-section reveal">
+      <div class="achievements-head">
+        <div>
+          <span class="eyebrow-sm">Achievements</span>
+          <h3 class="achievements-title">Milestones on your ascent.</h3>
+        </div>
+        <p class="achievements-desc">Earn badges for workouts, streaks, levels, and more. Every achievement rewards bonus XP.</p>
+      </div>
+      <div class="achievements-grid" id="achievementsGrid" aria-live="polite">
+        <!-- Populated dynamically by ASCEND_ACHIEVEMENTS.render() -->
       </div>
     </div>
 

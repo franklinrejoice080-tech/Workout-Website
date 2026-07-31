@@ -278,6 +278,11 @@ function renderDashboard(animate = true) {
 
   // 6. Weekly 7-Day Calendar
   renderWeeklyCalendar(stats.weeklyHistory);
+
+  // 7. Achievements stat & grid (delegated to achievements module)
+  if (window.ASCEND_ACHIEVEMENTS && typeof window.ASCEND_ACHIEVEMENTS.render === 'function') {
+    window.ASCEND_ACHIEVEMENTS.render();
+  }
 }
 
 /**
@@ -468,6 +473,11 @@ function recordCompletedWorkout(workoutSession = {}) {
   }
 
   renderDashboard(true);
+
+  if (window.ASCEND_ACHIEVEMENTS && typeof window.ASCEND_ACHIEVEMENTS.checkAchievements === 'function') {
+    window.ASCEND_ACHIEVEMENTS.checkAchievements({ event: 'workoutCompleted', completedAt: new Date() });
+  }
+
   return stats;
 }
 

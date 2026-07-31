@@ -167,9 +167,11 @@ function getXPProgress() {
  * @param {string} [source='Activity'] Action source description for notifications
  * @returns {Object} Result object { xp, level, levelUp: boolean }
  */
-function addXP(amount = 0, source = 'Activity Completed') {
+function addXP(amount = 0, source = 'Activity Completed', options = {}) {
   const xpAwarded = Math.max(0, Number(amount) || 0);
   if (xpAwarded <= 0) return { xp: player.xp, level: player.level, levelUp: false };
+
+  const skipNotification = Boolean(options.skipNotification);
 
   const oldLevel = player.level;
   player.xp += xpAwarded;
@@ -178,13 +180,15 @@ function addXP(amount = 0, source = 'Activity Completed') {
 
   savePlayer();
 
-  // Show reusable XP notification
-  showNotification({
-    type: 'xp',
-    title: `+${xpAwarded} XP Earned`,
-    message: source,
-    icon: '⚡'
-  });
+  // Show reusable XP notification (skipped when awarding via achievements)
+  if (!skipNotification) {
+    showNotification({
+      type: 'xp',
+      title: `+${xpAwarded} XP Earned`,
+      message: source,
+      icon: '⚡'
+    });
+  }
 
   // If player leveled up, trigger Level Up notification
   if (levelUp) {
@@ -200,6 +204,10 @@ function addXP(amount = 0, source = 'Activity Completed') {
   }
 
   renderXP(true);
+
+  if (window.ASCEND_ACHIEVEMENTS && typeof window.ASCEND_ACHIEVEMENTS.checkAchievements === 'function') {
+    window.ASCEND_ACHIEVEMENTS.checkAchievements({ event: 'xpGained' });
+  }
 
   return {
     xp: player.xp,
