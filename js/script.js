@@ -207,20 +207,91 @@ function setCurrentUser(user){
   else { localStorage.removeItem(currentUserKey); }
 }
 
+function formatJoinedDate(value){
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getProfileSnapshot(){
+  const xp = window.ASCEND_XP && typeof window.ASCEND_XP.getPlayer === 'function'
+    ? window.ASCEND_XP.getPlayer()
+    : null;
+
+  const dashboard = window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.getStats === 'function'
+    ? window.ASCEND_DASHBOARD.getStats()
+    : null;
+
+  const achievements = window.ASCEND_ACHIEVEMENTS && typeof window.ASCEND_ACHIEVEMENTS.getAchievements === 'function'
+    ? window.ASCEND_ACHIEVEMENTS.getAchievements()
+    : null;
+
+  return { xp, dashboard, achievements };
+}
+
 function renderAuthNav(){
   const container = document.getElementById('navAuth');
   const user = getCurrentUser();
+
+  if (!container) return;
+
   if(user){
+    const { xp, dashboard, achievements } = getProfileSnapshot();
+    const username = user.name || user.email || 'ASCEND Member';
+    const firstName = String(username).split(' ')[0] || username;
+    const avatarLetter = String(username).trim().charAt(0).toUpperCase() || 'A';
+    const level = xp ? (Number(xp.level) || 1) : 1;
+    const totalXp = xp ? (Number(xp.xp) || 0) : 0;
+    const totalWorkouts = xp ? (Number(xp.totalWorkouts) || 0) : (dashboard ? (Number(dashboard.totalWorkouts) || 0) : 0);
+    const currentStreak = dashboard ? (Number(dashboard.currentStreak) || 0) : (xp ? (Number(xp.streak) || 0) : 0);
+    const joinedDate = formatJoinedDate(user.joinedAt);
+    const achievementUnlocked = Array.isArray(achievements) ? achievements.filter((item) => item.unlocked).length : 0;
+    const achievementTotal = window.ASCEND_ACHIEVEMENTS && typeof window.ASCEND_ACHIEVEMENTS.getTotalCount === 'function'
+      ? window.ASCEND_ACHIEVEMENTS.getTotalCount()
+      : 0;
+
     container.innerHTML = `
       <div class="user-menu-wrapper">
-        <button class="user-pill" type="button" aria-haspopup="menu" aria-expanded="false" onclick="toggleUserMenu()">
-          <span class="user-pill-icon">👤</span>
-          Hello, ${escapeHtml(user.name.split(' ')[0] || user.name)}
+        <button class="user-pill" type="button" aria-haspopup="menu" aria-expanded="true" onclick="toggleUserMenu()">
+          <span class="user-pill-icon">${escapeHtml(avatarLetter)}</span>
+          <span>${escapeHtml(firstName)}</span>
         </button>
-        <div class="user-dropdown" id="userDropdown" role="menu">
-          <a href="#progress" role="menuitem" onclick="closeUserMenu()">Dashboard</a>
-          <a href="#about" role="menuitem" onclick="closeUserMenu()">Profile</a>
-          <button type="button" role="menuitem" onclick="logout()">Logout</button>
+        <div class="user-dropdown user-dropdown-premium show" id="userDropdown" role="menu">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-avatar">${escapeHtml(avatarLetter)}</div>
+            <div>
+              <div class="user-dropdown-name">${escapeHtml(username)}</div>
+              <div class="user-dropdown-subtitle">ASCEND Member</div>
+            </div>
+          </div>
+          <div class="user-dropdown-grid">
+            <div class="user-dropdown-metric">
+              <span>Level</span>
+              <strong>${level}</strong>
+            </div>
+            <div class="user-dropdown-metric">
+              <span>XP</span>
+              <strong>${totalXp.toLocaleString()}</strong>
+            </div>
+            <div class="user-dropdown-metric">
+              <span>Streak</span>
+              <strong>${currentStreak} days</strong>
+            </div>
+            <div class="user-dropdown-metric">
+              <span>Workouts</span>
+              <strong>${totalWorkouts}</strong>
+            </div>
+            <div class="user-dropdown-metric user-dropdown-metric-wide">
+              <span>Joined</span>
+              <strong>${escapeHtml(joinedDate)}</strong>
+            </div>
+            <div class="user-dropdown-metric user-dropdown-metric-wide">
+              <span>Achievements</span>
+              <strong>${achievementUnlocked}/${achievementTotal || 0}</strong>
+            </div>
+          </div>
+          <button type="button" class="user-dropdown-logout" role="menuitem" onclick="logout()">Logout</button>
         </div>
       </div>`;
   } else {
@@ -366,10 +437,11 @@ function handleAuthSubmit(event){
         setAuthError('An account with this email already exists.');
         return;
       }
-      const newUser = { name, email, password, remember };
+      const joinedAt = new Date().toISOString();
+      const newUser = { name, email, password, remember, joinedAt };
       users.push(newUser);
       saveStoredUsers(users);
-      setCurrentUser({ name, email, remember });
+      setCurrentUser({ ...newUser });
       renderAuthNav();
       setAuthSuccess(`Welcome aboard, ${name}! Your account is ready.`);
       setSubmitLoading(false, 'Create Account');
@@ -381,7 +453,7 @@ function handleAuthSubmit(event){
         setAuthError('The email or password is incorrect.');
         return;
       }
-      setCurrentUser({ name: match.name, email: match.email, remember });
+      setCurrentUser({ ...match, remember, joinedAt: match.joinedAt || new Date().toISOString() });
       renderAuthNav();
       setAuthSuccess(`Welcome back, ${match.name}!`);
       setSubmitLoading(false, 'Log In');
@@ -398,6 +470,7 @@ function attachAuthEvents(){
   document.addEventListener('click', (event)=>{
     if(!event.target.closest('.user-menu-wrapper')) closeUserMenu();
   });
+  window.addEventListener('load', renderAuthNav);
 }
 
 /* ---------- daily workout ring ---------- */
