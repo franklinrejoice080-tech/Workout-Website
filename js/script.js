@@ -253,11 +253,11 @@ function renderAuthNav(){
 
     container.innerHTML = `
       <div class="user-menu-wrapper">
-        <button class="user-pill" type="button" aria-haspopup="menu" aria-expanded="true" onclick="toggleUserMenu()">
+        <button class="user-pill" type="button" aria-haspopup="menu" aria-expanded="false" onclick="toggleUserMenu()">
           <span class="user-pill-icon">${escapeHtml(avatarLetter)}</span>
           <span>${escapeHtml(firstName)}</span>
         </button>
-        <div class="user-dropdown user-dropdown-premium show" id="userDropdown" role="menu">
+        <div class="user-dropdown user-dropdown-premium" id="userDropdown" role="menu">
           <div class="user-dropdown-header">
             <div class="user-dropdown-avatar">${escapeHtml(avatarLetter)}</div>
             <div>
@@ -628,31 +628,14 @@ function startRestTimer(session){
       session._exerciseRemaining = undefined;
       session._exerciseComplete = false;
       renderWorkoutSession();
-      if(result && result.completed){
-    session.status = 'completed';
-
-    workoutEngine.markWorkoutComplete(session);
-    logSessionToDashboard(session);
-
-    // Award XP and save workout
-    if(window.ASCEND_XP){
-        window.ASCEND_XP.completeWorkout();
-    }
-
-    renderWorkoutSession();
-
-    showToast("Workout Complete! +120 XP 💪");
-
-} else {
-        // start next exercise automatically
-        startExerciseTimer(session);
-      }
+      // start next exercise automatically
+      workoutEngine.advanceToNextExercise(session);
+      startExerciseTimer(session);
       return;
     }
     renderWorkoutSession();
   }, 1000);
 }
-      const result = workoutEngine.advanceToNextExercise(session);
 
 function getWorkoutSessionActionMarkup(session){
   if(!session) return '';
