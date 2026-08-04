@@ -214,6 +214,10 @@ section{padding:130px 0;}
 .plan-day .dhead span{color:var(--red); font-size:13px;}
 .plan-ex{display:flex; justify-content:space-between; font-size:13px; color:var(--beige); padding:6px 0; border-top:1px dashed rgba(245,245,242,0.08);}
 .plan-ex:first-of-type{border-top:none;}
+.plan-foot{display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:12px; border-top:1px solid rgba(245,245,242,0.08);}
+.plan-foot span{font-size:12px; color:var(--gray);}
+.plan-start{background:var(--red); color:var(--white); border:none; padding:8px 16px; border-radius:100px; font-weight:600; font-size:12px; cursor:pointer; transition:opacity .25s;}
+.plan-start:hover{opacity:0.9;}
 
 /* ---------- PROGRESS DASHBOARD ---------- */
 .dash-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:20px;}

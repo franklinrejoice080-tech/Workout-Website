@@ -757,6 +757,38 @@ function startWorkoutSessionAction(){
   startExerciseTimer(activeSession);
 }
 
+// normalize a freshly created session so the timer and renderer can consume it
+// (durationSeconds per exercise + per-session run flags). Idempotent — safe for
+// both the template session and sessions built from the workout generator.
+function prepareSessionForRun(session){
+  if(!session || !Array.isArray(session.exercises)) return session;
+
+  // compute a sensible per-exercise duration (seconds) from repsOrDuration when possible
+  session.exercises.forEach((ex)=>{
+    if(typeof ex.durationSeconds === 'number' && ex.durationSeconds > 0) return;
+    const txt = String(ex.repsOrDuration || '').toLowerCase();
+    let dur = 60;
+    const minMatch = txt.match(/(\d+)\s*min/);
+    const secMatch = txt.match(/(\d+)\s*(?:sec|s)\b/);
+    if(minMatch){ dur = Number(minMatch[1]) * 60; }
+    else if(secMatch){ dur = Number(secMatch[1]); }
+    else if(txt.includes('rep')){ dur = 90; }
+    ex.durationSeconds = dur;
+  });
+
+  session.started = false;
+  session.status = 'ready';
+  session.currentExerciseIndex = 0;
+  session.completed = false;
+  session.completedAt = null;
+  session._exerciseRemaining = undefined;
+  session._exerciseComplete = false;
+  session._restRemaining = undefined;
+  session._inRest = false;
+
+  return session;
+}
+
 function createWorkoutTemplateSession(){
   const createdSession = workoutEngine.createWorkoutSession({
     title: 'Strength Workout',
@@ -771,36 +803,17 @@ function createWorkoutTemplateSession(){
     totalWorkoutTime: 35
   });
 
-  // compute a sensible per-exercise duration (seconds) from repsOrDuration when possible
-  createdSession.exercises.forEach((ex)=>{
-    const txt = String(ex.repsOrDuration || '').toLowerCase();
-    let dur = 60;
-    const minMatch = txt.match(/(\d+)\s*min/);
-    const secMatch = txt.match(/(\d+)\s*(?:sec|s)\b/);
-    if(minMatch){ dur = Number(minMatch[1]) * 60; }
-    else if(secMatch){ dur = Number(secMatch[1]); }
-    else if(txt.includes('rep')){ dur = 90; }
-    ex.durationSeconds = dur;
-  });
-
-  createdSession.started = false;
-  createdSession.status = 'ready';
-  createdSession.currentExerciseIndex = 0;
-  createdSession.completed = false;
-  createdSession.completedAt = null;
-  createdSession._exerciseRemaining = undefined;
-  createdSession._exerciseComplete = false;
-  createdSession._restRemaining = undefined;
-  createdSession._inRest = false;
-
-  return createdSession;
+  return prepareSessionForRun(createdSession);
 }
 
-function openWorkoutSession(){
+function openWorkoutSession(session){
   const overlay = document.getElementById('workoutSessionOverlay');
   if(!overlay) return;
 
-  const createdSession = createWorkoutTemplateSession();
+  // accept an optional pre-built session (e.g. from the workout generator);
+  // fall back to the standard template session for backwards compatibility
+  const createdSession = session || createWorkoutTemplateSession();
+  prepareSessionForRun(createdSession);
 
   currentWorkoutSession = createdSession;
   workoutEngine.setActiveSession(createdSession);
@@ -963,6 +976,7 @@ window.startWorkoutAnother = startWorkoutAgain;
 window.startWorkoutAgain = startWorkoutAgain;
 window.viewDashboardFromWorkout = viewDashboardFromWorkout;
 window.startWorkoutSessionAction = startWorkoutSessionAction;
+window.startGeneratedWorkout = startGeneratedWorkout;
 
 /* ---------- categories ---------- */
 const categories = [
@@ -998,36 +1012,57 @@ document.querySelectorAll('.chip-group').forEach(group=>{
   });
 });
 
-const exercisePool = {
-  'Lose Fat': ['Jump Rope','Kettlebell Swings','Mountain Climbers','Burpees','Rowing Intervals','Jumping Lunges'],
-  'Build Muscle': ['Barbell Squats','Bench Press','Deadlifts','Pull-ups','Overhead Press','Barbell Rows'],
-  'Endurance': ['Interval Sprints','Cycling','Rowing','Step-ups','Battle Ropes','Shadow Boxing'],
-  'Mobility': ['Hip Openers','Worlds Greatest Stretch','Cat-Cow Flow','Thoracic Rotations','90/90 Stretch','Ankle Circles']
-};
-function getActive(group){ return document.querySelector(`.chip-group[data-group="${group}"] .chip.active`).dataset.val; }
+function getActive(group){
+  const chip = document.querySelector(`.chip-group[data-group="${group}"] .chip.active`);
+  return (chip && chip.dataset && chip.dataset.val) || '';
+}
+
+let generatedPlan = null;
 
 function generatePlan(){
-  const level = getActive('level');
-  const goal = getActive('goal');
-  const equip = getActive('equip');
-  const days = parseInt(document.getElementById('gDays').value);
-  const time = document.getElementById('gTime').value;
-  const pool = exercisePool[goal] || exercisePool['Lose Fat'];
+  if(!window.ASCEND_WORKOUT_GENERATOR) return;
+  const level = getActive('level') || 'Beginner';
+  const goal = getActive('goal') || 'Lose Fat';
+  const equip = getActive('equip') || 'Bodyweight';
+  const daysEl = document.getElementById('gDays');
+  const timeEl = document.getElementById('gTime');
+  const days = parseInt((daysEl && daysEl.value) || '4', 10);
+  const time = (timeEl && timeEl.value) || '30 min';
 
+  generatedPlan = window.ASCEND_WORKOUT_GENERATOR.generatePlan({ level, goal, equip, days, time });
+  const result = document.getElementById('genResult');
+  if(result) result.innerHTML = renderGeneratedPlan(generatedPlan);
+}
+
+function renderGeneratedPlan(plan){
+  if(!plan || !Array.isArray(plan.days)) return '<div class="plan-empty">No plan generated.</div>';
   let html = `<h4>Your Weekly Plan</h4>`;
-  const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  for(let i=0;i<days;i++){
-    const shuffled = [...pool].sort(()=>0.5-Math.random()).slice(0,4);
+  plan.days.forEach((day, i)=>{
     html += `<div class="plan-day">
-      <div class="dhead">${dayNames[i]} <span>${time} · ${level}</span></div>
-      ${shuffled.map(ex=>`<div class="plan-ex"><span>${ex}</span><span>3 × 12</span></div>`).join('')}
+      <div class="dhead">${day.name} <span>${day.focus} · ${day.minutes} min</span></div>
+      ${day.exercises.map(ex=>`<div class="plan-ex"><span>${ex.name}</span><span>${ex.repsOrDuration}</span></div>`).join('')}
+      <div class="plan-foot">
+        <span>≈ ${day.minutes} min · ${day.calories} kcal</span>
+        <button class="plan-start" onclick="startGeneratedWorkout(${i})">Start Day →</button>
+      </div>
     </div>`;
-  }
+  });
   html += `<div class="plan-day" style="border-color:rgba(40,199,111,0.3); background:rgba(40,199,111,0.06);">
-    <div class="dhead" style="color:var(--green);">Goal: ${goal} <span style="color:var(--green);">${equip}</span></div>
-    <div class="plan-ex"><span>Estimated adherence boost</span><span style="color:var(--green);">+34%</span></div>
+    <div class="dhead" style="color:var(--green);">Goal: ${plan.goal} <span style="color:var(--green);">${plan.equip}</span></div>
+    <div class="plan-ex"><span>Estimated weekly burn</span><span style="color:var(--green);">~${plan.totalCalories} kcal</span></div>
   </div>`;
-  document.getElementById('genResult').innerHTML = html;
+  return html;
+}
+
+function startGeneratedWorkout(dayIndex){
+  if(!window.ASCEND_WORKOUT_GENERATOR || !generatedPlan) return;
+  const day = generatedPlan.days[dayIndex];
+  if(!day) return;
+  const options = window.ASCEND_WORKOUT_GENERATOR.buildDaySessionOptions(generatedPlan, dayIndex);
+  if(!options) return;
+  const session = workoutEngine.createWorkoutSession(options);
+  prepareSessionForRun(session);
+  openWorkoutSession(session);
 }
 
 /* ---------- dashboard counters ---------- */
