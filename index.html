@@ -445,12 +445,12 @@
     </div>
     <div class="coach-shell reveal">
       <div class="coach-side">
-        <h4>Ask the Coach</h4>
-        <p>Try one of these, or type your own question.</p>
-        <button class="suggest-chip" onclick="askCoach('How do I fix my squat form?')">How do I fix my squat form?</button>
-        <button class="suggest-chip" onclick="askCoach('What should I eat before a workout?')">What should I eat before a workout?</button>
-        <button class="suggest-chip" onclick="askCoach('How do I prevent knee pain when running?')">How do I prevent knee pain when running?</button>
-        <button class="suggest-chip" onclick="askCoach('How many rest days do I need?')">How many rest days do I need?</button>
+        <h4>Your Coach</h4>
+        <p>Personalized guidance based on your progress.</p>
+        <button class="suggest-chip" onclick="ASCEND_COACH.showDailyAdvice()">📊 Daily Advice</button>
+        <button class="suggest-chip" onclick="ASCEND_COACH.showWeeklySummary()">📈 Weekly Summary</button>
+        <button class="suggest-chip" onclick="ASCEND_COACH.showGoals()">🎯 My Goals</button>
+        <button class="suggest-chip" onclick="ASCEND_COACH.showMotivation()">💪 Motivate Me</button>
       </div>
       <div class="coach-main">
         <div class="coach-msgs" id="coachMsgs">
@@ -569,6 +569,8 @@
 <script src="js/achievements.js"></script>
 <script src="js/bodyMeasurements.js"></script>
 <script src="js/aiCoach.js"></script>
+<script src="js/workoutHistory.js"></script>
+<script src="js/coachEngine.js"></script>
 <script src="js/animations.js"></script>
 </body>
 </html>
