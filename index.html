@@ -207,20 +207,54 @@
     </div>
 
     <div class="dash-grid reveal">
-      <div class="dash-card"><div class="label">Total Workouts</div><div class="val" id="statWorkouts">0</div><div class="delta">completed</div></div>
-      <div class="dash-card"><div class="label">Total Minutes</div><div class="val" id="statMinutes">0 min</div><div class="delta">time active</div></div>
-      <div class="dash-card"><div class="label">Calories Burned</div><div class="val" id="statCalories">0 kcal</div><div class="delta">total burned</div></div>
-      <div class="dash-card">
-        <div class="label">Current Streak</div>
-        <div class="val green" id="statStreak">0 days</div>
-        <div class="streak-motivation" id="streakMotivation">Every journey starts with one workout.</div>
-      </div>
-      <div class="dash-card">
-        <div class="label">Achievements Unlocked</div>
-        <div class="val" id="statAchievements">0</div>
-        <div class="delta" id="statAchievementsTotal">of 30 earned</div>
-      </div>
+  <div class="dash-card">
+    <div class="label">Total Workouts</div>
+    <div class="val" id="statWorkouts">0</div>
+    <div class="delta">completed</div>
+  </div>
+
+  <div class="dash-card">
+    <div class="label">Total Minutes</div>
+    <div class="val" id="statMinutes">0 min</div>
+    <div class="delta">time active</div>
+  </div>
+
+  <div class="dash-card">
+    <div class="label">Calories Burned</div>
+    <div class="val" id="statCalories">0 kcal</div>
+    <div class="delta">total burned</div>
+  </div>
+
+  <div class="dash-card">
+    <div class="label">Current Streak</div>
+    <div class="val green" id="statStreak">0 days</div>
+    <div class="streak-motivation" id="streakMotivation">
+      Every journey starts with one workout.
     </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="label">Achievements Unlocked</div>
+    <div class="val" id="statAchievements">0</div>
+    <div class="delta" id="statAchievementsTotal">of 30 earned</div>
+  </div>
+
+  <!-- XP / LEVEL -->
+  <div class="dash-card xp-card">
+    <div class="label">ASCEND Level</div>
+
+    <div class="val" id="statLevel">1</div>
+
+    <div class="xp-progress-bar-container">
+  <div class="xp-progress-bar-fill" id="xpProgressFill"></div>
+</div>
+
+    <div class="xp-details">
+      <span id="statXP">0 XP</span>
+      <span id="statXPNext">0 XP to next level</span>
+    </div>
+  </div>
+</div>
 
     <!-- ============ TODAY'S GOAL & WEEKLY CALENDAR ============ -->
     <div class="dash-grid-secondary reveal">
@@ -240,6 +274,15 @@
         <div class="label">Weekly Training Calendar</div>
         <div class="weekly-calendar" id="weeklyCalendarGrid">
           <!-- 7 day pills populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-card recent-workouts-card reveal" id="recentWorkoutsCard">
+      <div class="label">Recent Workouts</div>
+      <div class="recent-workouts-list" id="recentWorkoutsList">
+        <div class="recent-history-empty">
+          <p>No workout history yet. Complete a session to start logging your progress.</p>
         </div>
       </div>
     </div>
@@ -561,11 +604,13 @@
 
 <script src="js/script.js?v=workout-3"></script>
 <script src="js/workoutGenerator.js"></script>
+<script src="js/workoutDiscovery.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/workoutEngine.js"></script>
 <script src="js/timer.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/xpSystem.js"></script>
+<script src="js/levelUpUI.js"></script>
 <script src="js/achievements.js"></script>
 <script src="js/bodyMeasurements.js"></script>
 <script src="js/aiCoach.js"></script>

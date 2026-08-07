@@ -259,6 +259,73 @@
   transform: translateX(-50%) translateY(0);
 }
 
+/* --- RECENT WORKOUTS CARD --- */
+.recent-workouts-card {
+  display: block;
+  padding: 30px;
+}
+
+.recent-workouts-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.recent-history-empty {
+  background: rgba(245, 245, 242, 0.03);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px 18px;
+  color: var(--gray);
+  font-size: 13px;
+}
+
+.recent-workout-entry {
+  background: rgba(245, 245, 242, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.recent-workout-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.recent-workout-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.recent-workout-meta {
+  font-size: 12px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.recent-workout-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--beige);
+  justify-content: flex-start;
+}
+
+.recent-workout-stats span {
+  background: rgba(245, 245, 242, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+
 /* --- PREMIUM XP PROGRESS CARD --- */
 .xp-card {
   background: rgba(26, 26, 26, 0.85);
@@ -848,3 +915,629 @@
     padding: 18px;
   }
 }
+
+/* =========================================
+   ASCEND LEVEL-UP CELEBRATION MODAL STYLES
+   ========================================= */
+
+body.ascend-modal-open {
+  overflow: hidden !important;
+}
+
+.ascend-levelup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(7, 7, 7, 0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ascend-levelup-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ascend-levelup-card {
+  width: min(92vw, 440px);
+  background: linear-gradient(160deg, #18181b 0%, #0f0f11 60%, #09090b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  padding: 40px 32px 36px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.75), 0 0 50px rgba(255, 45, 46, 0.12);
+  transform: scale(0.92) translateY(16px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.ascend-levelup-overlay.show .ascend-levelup-card {
+  transform: scale(1) translateY(0);
+}
+
+.ascend-levelup-ambient-glow {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(255, 45, 46, 0.22) 0%, rgba(16, 185, 129, 0.08) 45%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(20px);
+}
+
+.ascend-levelup-header,
+.ascend-levelup-body,
+.ascend-levelup-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.ascend-levelup-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--red, #ff2d2e);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.ascend-levelup-crown {
+  font-size: 36px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(255, 45, 46, 0.4));
+  animation: crownFloat 3s ease-in-out infinite;
+}
+
+@keyframes crownFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.ascend-levelup-level-num {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--white, #ffffff);
+  margin: 0 0 6px 0;
+  line-height: 1.1;
+  text-shadow: 0 4px 20px rgba(255, 45, 46, 0.25);
+}
+
+.ascend-levelup-rank {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--beige, #e8ded1);
+  margin-bottom: 18px;
+}
+
+.ascend-levelup-desc {
+  font-size: 15px;
+  color: var(--gray, #a1a1aa);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.ascend-levelup-multitag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+}
+
+.ascend-levelup-multitag.hidden {
+  display: none;
+}
+
+.ascend-levelup-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-radius: 999px;
+  background: var(--red, #ff2d2e);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255, 45, 46, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 4px;
+}
+
+.ascend-levelup-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(255, 45, 46, 0.55);
+  background: #ff4546;
+}
+
+.ascend-levelup-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.ascend-levelup-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(255, 45, 46, 0.3);
+}
+
+@media (max-width: 480px) {
+  .ascend-levelup-card {
+    padding: 32px 24px 28px;
+    border-radius: 24px;
+  }
+  .ascend-levelup-level-num {
+    font-size: 36px;
+  }
+}
+
+/* =========================================
+   ASCEND WORKOUT DISCOVERY & SELECTION MODAL
+   ========================================= */
+
+.ascend-discovery-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(7, 7, 7, 0.86);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ascend-discovery-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ascend-discovery-card {
+  width: min(94vw, 760px);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: linear-gradient(165deg, #18181b 0%, #0f0f11 50%, #09090b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+  padding: 36px 32px;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 45, 46, 0.08);
+  transform: scale(0.94) translateY(14px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.ascend-discovery-overlay.show .ascend-discovery-card {
+  transform: scale(1) translateY(0);
+}
+
+/* Header */
+.ascend-disc-head,
+.ascend-disc-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ascend-disc-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--red, #ff2d2e);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.ascend-disc-title {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.ascend-disc-sub {
+  font-size: 13px;
+  color: var(--gray, #a1a1aa);
+  margin-top: 4px;
+  display: block;
+}
+
+.ascend-disc-close-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(245, 245, 242, 0.06);
+  color: #ffffff;
+  font-size: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ascend-disc-close-btn:hover {
+  background: rgba(255, 45, 46, 0.2);
+  border-color: rgba(255, 45, 46, 0.5);
+  color: #ffffff;
+}
+
+.ascend-disc-back-btn {
+  background: transparent;
+  border: none;
+  color: var(--gray, #a1a1aa);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+  padding: 0;
+}
+
+.ascend-disc-back-btn:hover {
+  color: #ffffff;
+}
+
+/* Category Workout Grid */
+.ascend-disc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.ascend-disc-workout-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.ascend-disc-workout-card:hover {
+  border-color: rgba(255, 45, 46, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ascend-disc-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ascend-disc-diff-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.ascend-disc-diff-tag.diff-advanced {
+  background: rgba(255, 45, 46, 0.15);
+  border: 1px solid rgba(255, 45, 46, 0.35);
+  color: #ff5252;
+}
+
+.ascend-disc-diff-tag.diff-intermediate {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.ascend-disc-diff-tag.diff-beginner,
+.ascend-disc-diff-tag.diff-all-levels {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.ascend-disc-duration {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray, #a1a1aa);
+}
+
+.ascend-disc-workout-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.ascend-disc-workout-desc {
+  font-size: 13px;
+  color: var(--gray, #a1a1aa);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  flex: 1;
+}
+
+.ascend-disc-workout-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  pt: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ascend-disc-ex-count {
+  font-size: 12px;
+  color: var(--beige, #e8ded1);
+  font-weight: 600;
+}
+
+.ascend-disc-btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.ascend-disc-btn.primary {
+  background: var(--red, #ff2d2e);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(255, 45, 46, 0.3);
+}
+
+.ascend-disc-btn.primary:hover {
+  background: #ff4546;
+  box-shadow: 0 6px 20px rgba(255, 45, 46, 0.5);
+}
+
+.ascend-disc-btn.secondary {
+  background: rgba(245, 245, 242, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.ascend-disc-btn.secondary:hover {
+  background: rgba(245, 245, 242, 0.15);
+}
+
+/* Empty State */
+.ascend-disc-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+}
+
+.ascend-disc-empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  color: var(--red, #ff2d2e);
+}
+
+.ascend-disc-empty h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.ascend-disc-empty p {
+  font-size: 14px;
+  color: var(--gray, #a1a1aa);
+  margin: 0 0 20px 0;
+}
+
+/* Workout Detail View */
+.ascend-disc-detail-tags {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ascend-disc-cat-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--beige, #e8ded1);
+}
+
+.ascend-disc-detail-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.ascend-disc-detail-desc {
+  font-size: 15px;
+  color: var(--gray, #a1a1aa);
+  line-height: 1.55;
+  margin: 0 0 24px 0;
+}
+
+.ascend-disc-detail-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.ascend-disc-stat-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ascend-disc-stat-pill .lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray, #a1a1aa);
+}
+
+.ascend-disc-stat-pill .val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.ascend-disc-ex-list-section h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.5px;
+}
+
+.ascend-disc-ex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ascend-disc-detail-ex-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+}
+
+.ascend-disc-ex-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 45, 46, 0.15);
+  color: var(--red, #ff2d2e);
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ascend-disc-ex-info {
+  flex: 1;
+}
+
+.ascend-disc-ex-info h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 2px 0;
+}
+
+.ascend-disc-ex-target {
+  font-size: 12px;
+  color: var(--gray, #a1a1aa);
+}
+
+.ascend-disc-ex-meta span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--beige, #e8ded1);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ascend-disc-btn.start-now-btn {
+  width: 100%;
+  padding: 18px;
+  border-radius: 999px;
+  background: var(--red, #ff2d2e);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(255, 45, 46, 0.4);
+  margin-top: 24px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ascend-disc-btn.start-now-btn:hover {
+  background: #ff4546;
+  box-shadow: 0 14px 40px rgba(255, 45, 46, 0.6);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .ascend-discovery-card {
+    padding: 24px 20px;
+    border-radius: 24px;
+  }
+  .ascend-disc-title {
+    font-size: 24px;
+  }
+  .ascend-disc-detail-stats-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+

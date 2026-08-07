@@ -496,11 +496,25 @@ function formatTime(s){
 function logSessionToDashboard(session){
   if(!session || session._dashboardLogged) return;
   session._dashboardLogged = true;
+
+  let xpEarned = 0;
+  if(window.ASCEND_XP && typeof window.ASCEND_XP.completeWorkout === 'function'){
+    const xpResult = window.ASCEND_XP.completeWorkout();
+    if(xpResult && typeof xpResult.xpAwarded === 'number'){
+      xpEarned = xpResult.xpAwarded;
+    } else if(xpResult && typeof xpResult.newXP === 'number' && typeof xpResult.previousXP === 'number'){
+      xpEarned = xpResult.newXP - xpResult.previousXP;
+    } else {
+      xpEarned = 120;
+    }
+  }
+
   if(window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.recordCompletedWorkout === 'function'){
     window.ASCEND_DASHBOARD.recordCompletedWorkout(session);
   }
-  if(window.ASCEND_XP && typeof window.ASCEND_XP.completeWorkout === 'function'){
-    window.ASCEND_XP.completeWorkout();
+
+  if(window.ASCEND_WORKOUT_HISTORY && typeof window.ASCEND_WORKOUT_HISTORY.addRecord === 'function'){
+    window.ASCEND_WORKOUT_HISTORY.addRecord(session, xpEarned);
   }
 }
 
@@ -980,27 +994,49 @@ window.startGeneratedWorkout = startGeneratedWorkout;
 
 /* ---------- categories ---------- */
 const categories = [
-  {emoji:'💪', name:'Strength Training', desc:'Build raw power with compound lifts.', time:'45m', diff:'Advanced'},
-  {emoji:'🏃', name:'Cardio', desc:'Elevate your heart rate, build endurance.', time:'30m', diff:'All Levels'},
-  {emoji:'🧘', name:'Yoga', desc:'Improve flexibility and calm the mind.', time:'25m', diff:'Beginner'},
-  {emoji:'🔥', name:'HIIT', desc:'Short bursts, maximum intensity.', time:'20m', diff:'Intermediate'},
-  {emoji:'🏋', name:'Bodybuilding', desc:'Hypertrophy-focused muscle building.', time:'50m', diff:'Advanced'},
-  {emoji:'🤸', name:'Calisthenics', desc:'Master your own bodyweight.', time:'35m', diff:'Intermediate'},
-  {emoji:'🚶', name:'Beginner Workouts', desc:'The perfect place to start.', time:'20m', diff:'Beginner'},
-  {emoji:'⚡', name:'Mobility', desc:'Move better, recover faster.', time:'15m', diff:'All Levels'},
+  {id:'strength', emoji:'💪', name:'Strength Training', desc:'Build raw power with compound lifts.', time:'45m', diff:'Advanced'},
+  {id:'cardio', emoji:'🏃', name:'Cardio', desc:'Elevate your heart rate, build endurance.', time:'30m', diff:'All Levels'},
+  {id:'yoga', emoji:'🧘', name:'Yoga', desc:'Improve flexibility and calm the mind.', time:'25m', diff:'Beginner'},
+  {id:'hiit', emoji:'🔥', name:'HIIT', desc:'Short bursts, maximum intensity.', time:'20m', diff:'Intermediate'},
+  {id:'bodybuilding', emoji:'🏋', name:'Bodybuilding', desc:'Hypertrophy-focused muscle building.', time:'50m', diff:'Advanced'},
+  {id:'calisthenics', emoji:'🤸', name:'Calisthenics', desc:'Master your own bodyweight.', time:'35m', diff:'Intermediate'},
+  {id:'beginner', emoji:'🚶', name:'Beginner Workouts', desc:'The perfect place to start.', time:'20m', diff:'Beginner'},
+  {id:'mobility', emoji:'⚡', name:'Mobility', desc:'Move better, recover faster.', time:'15m', diff:'All Levels'},
 ];
 const catGrid = document.getElementById('catGrid');
-categories.forEach(c=>{
-  const el = document.createElement('div');
-  el.className='cat-card';
-  el.innerHTML = `
-    <div class="cat-arrow">↗</div>
-    <span class="cat-emoji">${c.emoji}</span>
-    <h4>${c.name}</h4>
-    <p>${c.desc}</p>
-    <div class="cat-foot"><span>${c.time}</span><span class="diff">${c.diff}</span></div>`;
-  catGrid.appendChild(el);
-});
+if (catGrid) {
+  categories.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'cat-card';
+    el.setAttribute('data-category', c.id);
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', `Explore ${c.name} Workouts`);
+    el.innerHTML = `
+      <div class="cat-arrow">↗</div>
+      <span class="cat-emoji">${c.emoji}</span>
+      <h4>${c.name}</h4>
+      <p>${c.desc}</p>
+      <div class="cat-foot"><span>${c.time}</span><span class="diff">${c.diff}</span></div>`;
+
+    el.addEventListener('click', () => {
+      if (window.ASCEND_WORKOUT_DISCOVERY && typeof window.ASCEND_WORKOUT_DISCOVERY.openCategory === 'function') {
+        window.ASCEND_WORKOUT_DISCOVERY.openCategory(c.id);
+      }
+    });
+
+    el.addEventListener('keydown', (evt) => {
+      if (evt.key === 'Enter' || evt.key === ' ') {
+        evt.preventDefault();
+        if (window.ASCEND_WORKOUT_DISCOVERY && typeof window.ASCEND_WORKOUT_DISCOVERY.openCategory === 'function') {
+          window.ASCEND_WORKOUT_DISCOVERY.openCategory(c.id);
+        }
+      }
+    });
+
+    catGrid.appendChild(el);
+  });
+}
 
 /* ---------- generator chips ---------- */
 document.querySelectorAll('.chip-group').forEach(group=>{

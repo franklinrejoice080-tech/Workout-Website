@@ -1,0 +1,481 @@
+[
+  {
+    "id": "str-pioneer",
+    "category": "strength",
+    "name": "Full Body Strength Pioneer",
+    "difficulty": "Advanced",
+    "duration": 45,
+    "calories": 380,
+    "description": "Heavy compound movements engineered to build maximum foundational power and muscular density.",
+    "exercises": [
+      {
+        "id": "barbell-squats",
+        "name": "Barbell Squats",
+        "muscle": "Legs",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 50,
+        "restDuration": 75,
+        "calories": 90,
+        "instructions": "Brace hard, sit down and drive up with the bar packed on traps."
+      },
+      {
+        "id": "bench-press",
+        "name": "Bench Press",
+        "muscle": "Chest",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 50,
+        "restDuration": 75,
+        "calories": 95,
+        "instructions": "Pin shoulder blades, touch chest, press with control."
+      },
+      {
+        "id": "barbell-rows",
+        "name": "Barbell Rows",
+        "muscle": "Back",
+        "repsOrDuration": "3 × 8 reps",
+        "durationSeconds": 50,
+        "restDuration": 75,
+        "calories": 90,
+        "instructions": "Hinged torso, row to navel, elbows tucked."
+      },
+      {
+        "id": "overhead-press",
+        "name": "Overhead Press",
+        "muscle": "Shoulders",
+        "repsOrDuration": "3 × 8 reps",
+        "durationSeconds": 45,
+        "restDuration": 75,
+        "calories": 85,
+        "instructions": "Press from collarbone, glutes braced, bar path straight up."
+      }
+    ]
+  },
+  {
+    "id": "str-db-power",
+    "category": "strength",
+    "name": "Dumbbell Power & Core",
+    "difficulty": "Intermediate",
+    "duration": 35,
+    "calories": 310,
+    "description": "Dynamic dumbbell strength circuit focusing on multi-joint power and core stability.",
+    "exercises": [
+      {
+        "id": "dumbbell-thrusters",
+        "name": "Dumbbell Thrusters",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 85,
+        "instructions": "Front-rack dumbbells, squat deep, press overhead in one drive."
+      },
+      {
+        "id": "db-rows",
+        "name": "Dumbbell Rows",
+        "muscle": "Back",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 45,
+        "restDuration": 60,
+        "calories": 75,
+        "instructions": "Hinge flat-backed, row dumbbell to hip."
+      },
+      {
+        "id": "goblet-squats",
+        "name": "Goblet Squats",
+        "muscle": "Legs",
+        "repsOrDuration": "3 × 12 reps",
+        "durationSeconds": 45,
+        "restDuration": 45,
+        "calories": 60,
+        "instructions": "Hold dumbbell at chest, squat to parallel."
+      },
+      {
+        "id": "renegade-rows",
+        "name": "Renegade Rows",
+        "muscle": "Back",
+        "repsOrDuration": "3 × 8 reps",
+        "durationSeconds": 50,
+        "restDuration": 60,
+        "calories": 95,
+        "instructions": "Plank position, row one arm at a time keeping hips square."
+      }
+    ]
+  },
+  {
+    "id": "car-endurance-engine",
+    "category": "cardio",
+    "name": "Cardio Endurance Engine",
+    "difficulty": "All Levels",
+    "duration": 30,
+    "calories": 320,
+    "description": "Sustained aerobic conditioning workout designed to boost lung capacity and caloric burn.",
+    "exercises": [
+      {
+        "id": "high-knees",
+        "name": "High Knees",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 30 sec",
+        "durationSeconds": 30,
+        "restDuration": 30,
+        "calories": 60,
+        "instructions": "Drive knees to hip height at a fast, controlled tempo."
+      },
+      {
+        "id": "jumping-jacks",
+        "name": "Jumping Jacks",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 55,
+        "instructions": "Keep knees soft, land lightly on balls of feet."
+      },
+      {
+        "id": "mountain-climbers",
+        "name": "Mountain Climbers",
+        "muscle": "Core",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 30,
+        "calories": 65,
+        "instructions": "Keep hips low, alternate knees to chest rapidly."
+      },
+      {
+        "id": "shadow-boxing",
+        "name": "Shadow Boxing",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 30,
+        "calories": 65,
+        "instructions": "Light on feet, snap punches, maintain rhythmic breathing."
+      }
+    ]
+  },
+  {
+    "id": "yog-vinyasa-flow",
+    "category": "yoga",
+    "name": "Vinyasa Flow & Release",
+    "difficulty": "Beginner",
+    "duration": 25,
+    "calories": 140,
+    "description": "Mindful movement flow to decompress joints, improve posture, and lengthen tight muscles.",
+    "exercises": [
+      {
+        "id": "cat-cow",
+        "name": "Cat-Cow Flow",
+        "muscle": "Spine",
+        "repsOrDuration": "3 × 30 sec",
+        "durationSeconds": 30,
+        "restDuration": 20,
+        "calories": 25,
+        "instructions": "Alternate rounding and arching spine slowly with breath."
+      },
+      {
+        "id": "downward-dog-walks",
+        "name": "Downward Dog Walks",
+        "muscle": "Hamstrings",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 20,
+        "calories": 25,
+        "instructions": "In downward dog, pedal heels slowly to lengthen calves and hamstrings."
+      },
+      {
+        "id": "childs-pose",
+        "name": "Child’s Pose Hold",
+        "muscle": "Back",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 20,
+        "calories": 20,
+        "instructions": "Kneel wide, reach arms long, sink hips back to heels."
+      },
+      {
+        "id": "pigeon-pose",
+        "name": "Pigeon Pose",
+        "muscle": "Hips",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 20,
+        "calories": 25,
+        "instructions": "Front shin transverse, square hips, fold forward gently."
+      }
+    ]
+  },
+  {
+    "id": "hiit-shred-20",
+    "category": "hiit",
+    "name": "20-Min High Intensity Shred",
+    "difficulty": "Intermediate",
+    "duration": 20,
+    "calories": 290,
+    "description": "Fast-paced interval blast maximizing EPOC (afterburn) through explosive bodyweight movements.",
+    "exercises": [
+      {
+        "id": "burpees",
+        "name": "Burpees",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 60,
+        "calories": 90,
+        "instructions": "Drop, kick back to plank, push up, jump up in one fluid motion."
+      },
+      {
+        "id": "jump-squats",
+        "name": "Jump Squats",
+        "muscle": "Legs",
+        "repsOrDuration": "3 × 12 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 80,
+        "instructions": "Explode upward, absorb landing softly into next squat."
+      },
+      {
+        "id": "mountain-climbers",
+        "name": "Mountain Climbers",
+        "muscle": "Core",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 30,
+        "calories": 65,
+        "instructions": "Sprint knees to chest while holding solid plank position."
+      },
+      {
+        "id": "plank-jacks",
+        "name": "Plank Jacks",
+        "muscle": "Core",
+        "repsOrDuration": "3 × 35 sec",
+        "durationSeconds": 35,
+        "restDuration": 30,
+        "calories": 55,
+        "instructions": "In plank, jump feet wide and together with steady hips."
+      }
+    ]
+  },
+  {
+    "id": "bdy-push-pull-split",
+    "category": "bodybuilding",
+    "name": "Upper Body Hypertrophy",
+    "difficulty": "Advanced",
+    "duration": 50,
+    "calories": 420,
+    "description": "Precision muscle-building session focused on chest, back, shoulders, and arms.",
+    "exercises": [
+      {
+        "id": "bench-press",
+        "name": "Bench Press",
+        "muscle": "Chest",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 50,
+        "restDuration": 75,
+        "calories": 95,
+        "instructions": "Retract scapula, lower bar to sternum, drive up with control."
+      },
+      {
+        "id": "barbell-rows",
+        "name": "Barbell Rows",
+        "muscle": "Back",
+        "repsOrDuration": "3 × 8 reps",
+        "durationSeconds": 50,
+        "restDuration": 75,
+        "calories": 90,
+        "instructions": "Pull bar to lower ribs, squeeze lats at peak contraction."
+      },
+      {
+        "id": "db-overhead-press",
+        "name": "Dumbbell Overhead Press",
+        "muscle": "Shoulders",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 40,
+        "restDuration": 60,
+        "calories": 70,
+        "instructions": "Press dumbbells overhead in tight arc, control descent."
+      },
+      {
+        "id": "dips",
+        "name": "Dips",
+        "muscle": "Triceps",
+        "repsOrDuration": "3 × 12 reps",
+        "durationSeconds": 45,
+        "restDuration": 60,
+        "calories": 75,
+        "instructions": "Lean slightly forward, lower until upper arms are parallel to floor."
+      },
+      {
+        "id": "db-bicep-curls",
+        "name": "Dumbbell Bicep Curls",
+        "muscle": "Arms",
+        "repsOrDuration": "3 × 12 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 50,
+        "instructions": "Keep elbows fixed at sides, flex bicep hard at top."
+      }
+    ]
+  },
+  {
+    "id": "cal-bodyweight-mastery",
+    "category": "calisthenics",
+    "name": "Bodyweight Mastery Routine",
+    "difficulty": "Intermediate",
+    "duration": 35,
+    "calories": 310,
+    "description": "Pure bodyweight strength training to master push, pull, and core leverage.",
+    "exercises": [
+      {
+        "id": "pull-ups",
+        "name": "Pull Ups",
+        "muscle": "Back",
+        "repsOrDuration": "3 × 8 reps",
+        "durationSeconds": 45,
+        "restDuration": 60,
+        "calories": 85,
+        "instructions": "Overhand grip, drive elbows down, pull chest to bar."
+      },
+      {
+        "id": "push-ups",
+        "name": "Push Ups",
+        "muscle": "Chest",
+        "repsOrDuration": "3 × 12 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 50,
+        "instructions": "Body straight as a plank, lower chest to floor."
+      },
+      {
+        "id": "dips",
+        "name": "Dips",
+        "muscle": "Triceps",
+        "repsOrDuration": "3 × 12 reps",
+        "durationSeconds": 45,
+        "restDuration": 60,
+        "calories": 75,
+        "instructions": "Full depth dips, keep shoulders packed."
+      },
+      {
+        "id": "pike-push-ups",
+        "name": "Pike Push Ups",
+        "muscle": "Shoulders",
+        "repsOrDuration": "3 × 10 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 80,
+        "instructions": "Elevate hips high in pike position, lower crown of head to floor."
+      },
+      {
+        "id": "plank",
+        "name": "Forearm Plank Hold",
+        "muscle": "Core",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 30,
+        "calories": 40,
+        "instructions": "Brace core and glutes hard, maintain flat spinal alignment."
+      }
+    ]
+  },
+  {
+    "id": "beg-foundational-start",
+    "category": "beginner",
+    "name": "Foundational Fitness Start",
+    "difficulty": "Beginner",
+    "duration": 20,
+    "calories": 180,
+    "description": "Safe, effective introductory workout building basic movement mechanics and confidence.",
+    "exercises": [
+      {
+        "id": "bodyweight-squats",
+        "name": "Bodyweight Squats",
+        "muscle": "Legs",
+        "repsOrDuration": "3 × 15 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 45,
+        "instructions": "Sit back into heels, chest proud, knees tracking over toes."
+      },
+      {
+        "id": "incline-push-ups",
+        "name": "Incline Push Ups",
+        "muscle": "Chest",
+        "repsOrDuration": "3 × 15 reps",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 40,
+        "instructions": "Hands elevated on bench/step to build pressing strength."
+      },
+      {
+        "id": "jumping-jacks",
+        "name": "Jumping Jacks",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 45,
+        "calories": 55,
+        "instructions": "Light cadence, soft landing, smooth arm arc."
+      },
+      {
+        "id": "plank",
+        "name": "Plank",
+        "muscle": "Core",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 30,
+        "calories": 40,
+        "instructions": "Hold tight line from head to heels without sagging."
+      }
+    ]
+  },
+  {
+    "id": "mob-full-body-relief",
+    "category": "mobility",
+    "name": "Full Body Joint & Spine Relief",
+    "difficulty": "All Levels",
+    "duration": 15,
+    "calories": 110,
+    "description": "Essential joint mobilization and hip/thoracic opening to improve daily movement and speed recovery.",
+    "exercises": [
+      {
+        "id": "worlds-greatest-stretch",
+        "name": "World’s Greatest Stretch",
+        "muscle": "Full Body",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 20,
+        "calories": 30,
+        "instructions": "Deep lunge, rotate ribcage to ceiling, open hips and thoracic spine."
+      },
+      {
+        "id": "90-90-stretch",
+        "name": "90/90 Hip Stretch",
+        "muscle": "Hips",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 20,
+        "calories": 25,
+        "instructions": "Seated 90/90 position, fold tall over front shin."
+      },
+      {
+        "id": "hip-flexor-stretch",
+        "name": "Hip Flexor Stretch",
+        "muscle": "Hips",
+        "repsOrDuration": "3 × 45 sec",
+        "durationSeconds": 45,
+        "restDuration": 20,
+        "calories": 25,
+        "instructions": "Half-kneeling, tuck pelvis under, squeeze posterior glute."
+      },
+      {
+        "id": "thoracic-rotations",
+        "name": "Thoracic Rotations",
+        "muscle": "Spine",
+        "repsOrDuration": "3 × 40 sec",
+        "durationSeconds": 40,
+        "restDuration": 20,
+        "calories": 25,
+        "instructions": "On all fours, rotate upper spine to ceiling without twisting hips."
+      }
+    ]
+  }
+]

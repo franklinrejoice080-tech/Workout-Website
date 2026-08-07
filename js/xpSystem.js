@@ -8,7 +8,7 @@
  *
  * Persists state under localStorage key (`ascendPlayer`).
  * Connectable with future modules (Achievements, Daily Streak, AI Coach,
- * Workout History, Leaderboards) via clean public functions.
+ * Workout History, Leaderboards) via clean public functions and event system.
  */
 
 const ASCEND_PLAYER_KEY = 'ascendPlayer';
@@ -24,8 +24,11 @@ const DEFAULT_PLAYER = {
   lastWorkoutDate: null
 };
 
+// In-memory level-up event listeners
+const levelUpListeners = [];
+
 // In-memory player state
-let player = loadPlayer();
+let player = null;
 
 /* =========================================
    PUBLIC API: STORAGE & PLAYER STATE
@@ -34,6 +37,7 @@ let player = loadPlayer();
 /**
  * Public API: loadPlayer()
  * Loads player data from localStorage. Initializes safely to defaults if empty.
+ * Synchronizes player level directly from XP rules.
  * Other modules should call this instead of directly accessing localStorage.
  * @returns {Object} Deep copy of player state object
  */
@@ -41,22 +45,33 @@ function loadPlayer() {
   try {
     const saved = localStorage.getItem(ASCEND_PLAYER_KEY);
     if (!saved) {
-      localStorage.setItem(ASCEND_PLAYER_KEY, JSON.stringify(DEFAULT_PLAYER));
-      return { ...DEFAULT_PLAYER };
+      const state = { ...DEFAULT_PLAYER };
+      player = state;
+      savePlayer();
+      return { ...state };
     }
     const parsed = JSON.parse(saved);
-    return {
-      xp: Math.max(0, Number(parsed.xp) || 0),
-      level: Math.max(1, Number(parsed.level) || 1),
+    const xp = Math.max(0, Number(parsed.xp) || 0);
+    const level = getLevelFromXP(xp);
+    const state = {
+      xp,
+      level,
       totalWorkouts: Math.max(0, Number(parsed.totalWorkouts) || 0),
       streak: Math.max(0, Number(parsed.streak) || 0),
       lastWorkoutDate: parsed.lastWorkoutDate || null
     };
+    player = state;
+    return { ...state };
   } catch (err) {
     console.warn('[ASCEND XP] Failed to load player state:', err);
-    return { ...DEFAULT_PLAYER };
+    const state = { ...DEFAULT_PLAYER };
+    player = state;
+    return { ...state };
   }
 }
+
+// Initial load
+loadPlayer();
 
 /**
  * Public API: savePlayer()
@@ -77,6 +92,7 @@ function savePlayer() {
  * @returns {Object} Copy of player state { xp, level, totalWorkouts, streak, lastWorkoutDate }
  */
 function getPlayer() {
+  player.level = getLevelFromXP(player.xp);
   return { ...player };
 }
 
@@ -95,11 +111,12 @@ function getPlayer() {
  * @returns {number} Level number
  */
 function getLevelFromXP(xp) {
-  if (xp < 300) return 1;
-  if (xp < 700) return 2;
-  if (xp < 1200) return 3;
-  if (xp < 1800) return 4;
-  return 5 + Math.floor((xp - 1800) / 700);
+  const cleanXP = Math.max(0, Number(xp) || 0);
+  if (cleanXP < 300) return 1;
+  if (cleanXP < 700) return 2;
+  if (cleanXP < 1200) return 3;
+  if (cleanXP < 1800) return 4;
+  return 5 + Math.floor((cleanXP - 1800) / 700);
 }
 
 /**
@@ -108,11 +125,12 @@ function getLevelFromXP(xp) {
  * @returns {number} Total XP at start of level
  */
 function getCurrentLevelXP(level) {
-  if (level <= 1) return 0;
-  if (level === 2) return 300;
-  if (level === 3) return 700;
-  if (level === 4) return 1200;
-  return 1800 + ((level - 5) * 700);
+  const lvl = Math.max(1, Number(level) || 1);
+  if (lvl <= 1) return 0;
+  if (lvl === 2) return 300;
+  if (lvl === 3) return 700;
+  if (lvl === 4) return 1200;
+  return 1800 + ((lvl - 5) * 700);
 }
 
 /**
@@ -121,11 +139,12 @@ function getCurrentLevelXP(level) {
  * @returns {number} Total XP at start of next level
  */
 function getNextLevelXP(level) {
-  if (level === 1) return 300;
-  if (level === 2) return 700;
-  if (level === 3) return 1200;
-  if (level === 4) return 1800;
-  return 1800 + ((level - 4) * 700);
+  const lvl = Math.max(1, Number(level) || 1);
+  if (lvl === 1) return 300;
+  if (lvl === 2) return 700;
+  if (lvl === 3) return 1200;
+  if (lvl === 4) return 1800;
+  return 1800 + ((lvl - 4) * 700);
 }
 
 /**
@@ -135,7 +154,9 @@ function getNextLevelXP(level) {
  */
 function getXPProgress() {
   const currentXP = player.xp;
-  const level = player.level;
+  const level = getLevelFromXP(currentXP);
+  player.level = level;
+
   const levelStartXP = getCurrentLevelXP(level);
   const levelNextXP = getNextLevelXP(level);
   const progressInLevel = Math.max(0, currentXP - levelStartXP);
@@ -156,31 +177,109 @@ function getXPProgress() {
 }
 
 /* =========================================
+   EVENT BUS / LEVEL UP EVENT MECHANISM
+   ========================================= */
+
+/**
+ * Public API: onLevelUp(callback)
+ * Subscribe to Level Up events.
+ * @param {Function} callback Callback receiving level-up result object
+ * @returns {Function} Unsubscribe function
+ */
+function onLevelUp(callback) {
+  if (typeof callback === 'function' && !levelUpListeners.includes(callback)) {
+    levelUpListeners.push(callback);
+  }
+  return () => {
+    const idx = levelUpListeners.indexOf(callback);
+    if (idx !== -1) levelUpListeners.splice(idx, 1);
+  };
+}
+
+/**
+ * Internal: Dispatch Level Up event to custom window DOM event & registered callbacks
+ * @param {Object} result Level up result details
+ */
+function dispatchLevelUpEvent(result) {
+  // 1. Dispatch DOM CustomEvent 'ascend:levelUp'
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    try {
+      window.dispatchEvent(new CustomEvent('ascend:levelUp', { detail: result }));
+    } catch (err) {
+      console.warn('[ASCEND XP] Failed to dispatch ascend:levelUp event:', err);
+    }
+  }
+
+  // 2. Notify registered listeners
+  levelUpListeners.forEach(fn => {
+    try {
+      fn(result);
+    } catch (err) {
+      console.warn('[ASCEND XP] Listener error on level-up:', err);
+    }
+  });
+}
+
+/* =========================================
    PUBLIC API: XP MUTATION & WORKOUT ENGINE
    ========================================= */
 
 /**
- * Public API: addXP(amount, source)
+ * Public API: addXP(amount, source, options)
  * Awards XP to the player. Automatically handles level-up calculations,
  * triggers UI notifications, updates localStorage, and re-renders progress.
  * @param {number} amount Amount of XP to award (must be > 0)
- * @param {string} [source='Activity'] Action source description for notifications
- * @returns {Object} Result object { xp, level, levelUp: boolean }
+ * @param {string} [source='Activity Completed'] Action source description for notifications
+ * @param {Object} [options={}] Optional parameters (e.g. { skipNotification: true })
+ * @returns {Object} Detailed level-up result object { xp, level, levelUp, previousXP, newXP, previousLevel, newLevel, levelsGained, source, xpAwarded }
  */
 function addXP(amount = 0, source = 'Activity Completed', options = {}) {
   const xpAwarded = Math.max(0, Number(amount) || 0);
-  if (xpAwarded <= 0) return { xp: player.xp, level: player.level, levelUp: false };
+  const oldXP = player.xp;
+  const oldLevel = getLevelFromXP(oldXP);
+  player.level = oldLevel;
+
+  if (xpAwarded <= 0) {
+    return {
+      xp: oldXP,
+      level: oldLevel,
+      levelUp: false,
+      previousXP: oldXP,
+      newXP: oldXP,
+      previousLevel: oldLevel,
+      newLevel: oldLevel,
+      levelsGained: 0,
+      source,
+      xpAwarded: 0
+    };
+  }
 
   const skipNotification = Boolean(options.skipNotification);
 
-  const oldLevel = player.level;
   player.xp += xpAwarded;
-  player.level = getLevelFromXP(player.xp);
-  const levelUp = player.level > oldLevel;
+  const newLevel = getLevelFromXP(player.xp);
+  player.level = newLevel;
+  const levelUp = newLevel > oldLevel;
+  const levelsGained = levelUp ? (newLevel - oldLevel) : 0;
 
   savePlayer();
 
-  // Show reusable XP notification (skipped when awarding via achievements)
+  const result = {
+    // Backward compatibility properties:
+    xp: player.xp,
+    level: player.level,
+    levelUp: levelUp,
+    // Detailed level-up result fields:
+    previousXP: oldXP,
+    newXP: player.xp,
+    previousLevel: oldLevel,
+    newLevel: player.level,
+    levelsGained: levelsGained,
+    source,
+    xpAwarded
+  };
+
+  // Show reusable XP notification (skipped when awarding via achievements or options)
   if (!skipNotification) {
     showNotification({
       type: 'xp',
@@ -190,17 +289,28 @@ function addXP(amount = 0, source = 'Activity Completed', options = {}) {
     });
   }
 
-  // If player leveled up, trigger Level Up notification
+  // If player leveled up, trigger Level Up event & primary celebration modal (or fallback toast)
   if (levelUp) {
-    setTimeout(() => {
-      showNotification({
-        type: 'levelUp',
-        title: `LEVEL UP! Level ${player.level}`,
-        message: 'Congratulations! You reached a new rank on ASCEND.',
-        icon: '👑',
-        duration: 4000
-      });
-    }, 600);
+    dispatchLevelUpEvent(result);
+
+    // Fallback toast if celebration modal is not initialized or if specifically requested
+    if (options.showLevelUpToast || !window.ASCEND_LEVEL_UP_INITIALIZED) {
+      const isMultiLevel = levelsGained > 1;
+      const titleText = isMultiLevel
+        ? `LEVEL UP! Level ${player.level} (+${levelsGained} Levels)`
+        : `LEVEL UP! Level ${player.level}`;
+      const msgText = `Congratulations! You're now Level ${player.level}.`;
+
+      setTimeout(() => {
+        showNotification({
+          type: 'levelUp',
+          title: titleText,
+          message: msgText,
+          icon: '👑',
+          duration: 4000
+        });
+      }, 600);
+    }
   }
 
   renderXP(true);
@@ -209,11 +319,7 @@ function addXP(amount = 0, source = 'Activity Completed', options = {}) {
     window.ASCEND_ACHIEVEMENTS.checkAchievements({ event: 'xpGained' });
   }
 
-  return {
-    xp: player.xp,
-    level: player.level,
-    levelUp
-  };
+  return result;
 }
 
 /**
@@ -221,7 +327,7 @@ function addXP(amount = 0, source = 'Activity Completed', options = {}) {
  * Called when a workout session finishes. Awards XP, increments workout count,
  * and updates persistent storage.
  * @param {number} [amount=120] XP reward amount for completing a workout
- * @returns {Object} Updated player state
+ * @returns {Object} Updated player state / level-up result
  */
 function completeWorkout(amount = 120) {
   player.totalWorkouts += 1;
@@ -353,6 +459,11 @@ function renderXP(animate = true) {
     if (elNextVal) elNextVal.textContent = `${p.progressInLevel.toLocaleString()} / ${p.neededForLevel.toLocaleString()} XP`;
     if (elPercentText) elPercentText.textContent = `${p.percent}%`;
   }
+
+  // Keep Dashboard "ASCEND Level" card synchronized automatically
+  if (window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.updateXPDisplay === 'function') {
+    window.ASCEND_DASHBOARD.updateXPDisplay();
+  }
 }
 
 /**
@@ -376,10 +487,14 @@ window.ASCEND_XP = {
   getPlayer,
   getXPProgress,
   getXPPROGRESS: getXPProgress, // Backward compatibility alias
+  getLevelFromXP,
+  getCurrentLevelXP,
+  getNextLevelXP,
   addXP,
   completeWorkout,
   renderXP,
   savePlayer,
   loadPlayer,
-  showNotification
+  showNotification,
+  onLevelUp
 };

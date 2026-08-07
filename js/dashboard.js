@@ -219,6 +219,35 @@ function animateNumber(el, startVal, endVal, suffix = '', duration = 800) {
  * Selectively updates only DOM elements that have actually changed.
  * @param {boolean} animate Whether to use smooth count-up transitions
  */
+function updateXPDisplay() {
+  if (!window.ASCEND_XP) {
+    console.warn('[ASCEND Dashboard] XP system is not loaded yet.');
+    return;
+  }
+
+  const progress = window.ASCEND_XP.getXPProgress();
+
+  const levelEl = document.getElementById('statLevel');
+  const xpEl = document.getElementById('statXP');
+  const nextXPEl = document.getElementById('statXPNext');
+  const progressFillEl = document.getElementById('xpProgressFill');
+
+  if (levelEl) {
+    levelEl.textContent = progress.level;
+  }
+
+  if (xpEl) {
+    xpEl.textContent = `${progress.currentXP} XP`;
+  }
+
+  if (nextXPEl) {
+    nextXPEl.textContent = `${progress.remainingToNext} XP to next level`;
+  }
+
+  if (progressFillEl) {
+    progressFillEl.style.width = `${progress.percent}%`;
+  }
+}
 function renderDashboard(animate = true) {
   const stats = getStats();
   const today = getTodayDateString();
@@ -278,8 +307,11 @@ function renderDashboard(animate = true) {
 
   // 6. Weekly 7-Day Calendar
   renderWeeklyCalendar(stats.weeklyHistory);
-
-  // 7. Achievements stat & grid (delegated to achievements module)
+  // 7. Recent workout history
+  renderRecentWorkouts(getRecentWorkoutHistory(5));
+  // 8. XP / Level display
+updateXPDisplay();
+  // 9. Achievements stat & grid (delegated to achievements module)
   if (window.ASCEND_ACHIEVEMENTS && typeof window.ASCEND_ACHIEVEMENTS.render === 'function') {
     window.ASCEND_ACHIEVEMENTS.render();
   }
@@ -323,6 +355,75 @@ function renderTodayGoal(workedOutToday) {
  * Render Weekly 7-Day Calendar grid with duration intensity and desktop tooltips
  * @param {Object} history Map of YYYY-MM-DD -> workout entry
  */
+function getRecentWorkoutHistory(count = 5) {
+  if (window.ASCEND_WORKOUT_HISTORY && typeof window.ASCEND_WORKOUT_HISTORY.getRecent === 'function') {
+    return window.ASCEND_WORKOUT_HISTORY.getRecent(count);
+  }
+
+  const stats = getStats();
+  const entries = Object.entries(stats.weeklyHistory || {}).map(([date, item]) => ({
+    workoutName: item.workoutName || 'Workout',
+    category: item.category || 'Unknown',
+    difficulty: item.difficulty || 'Unknown',
+    duration: item.duration || 0,
+    caloriesBurned: item.calories || 0,
+    exercisesCompleted: item.exercisesCompleted || [],
+    completedAt: item.completedAt || `${date}T00:00:00.000Z`,
+    xpEarned: item.xpEarned || 0,
+    completedSuccessfully: true
+  }));
+
+  return entries
+    .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+    .slice(0, count);
+}
+
+function formatWorkoutHistoryDate(isoString) {
+  try {
+    const date = new Date(isoString);
+    return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  } catch (err) {
+    return isoString || 'Unknown date';
+  }
+}
+
+function renderRecentWorkouts(history = []) {
+  const container = document.getElementById('recentWorkoutsList');
+  if (!container) return;
+
+  if (!Array.isArray(history) || history.length === 0) {
+    container.innerHTML = `
+      <div class="recent-history-empty">
+        <p>No workout history yet. Complete a session to see your recent workouts here.</p>
+      </div>
+    `;
+    lastRenderedState.recentHistoryCount = 0;
+    return;
+  }
+
+  const itemsHtml = history.slice(0, 5).map((entry) => {
+    const dateLabel = formatWorkoutHistoryDate(entry.completedAt);
+    const categoryLabel = entry.category ? `${entry.category}` : 'Workout';
+    return `
+      <div class="recent-workout-entry">
+        <div class="recent-workout-header">
+          <div class="recent-workout-title">${entry.workoutName || 'Workout'}</div>
+          <div class="recent-workout-meta">${categoryLabel}</div>
+        </div>
+        <div class="recent-workout-stats">
+          <span>${dateLabel}</span>
+          <span>${entry.duration || 0}m</span>
+          <span>${entry.caloriesBurned || 0} kcal</span>
+          <span>${entry.xpEarned || 0} XP</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = itemsHtml;
+  lastRenderedState.recentHistoryCount = history.length;
+}
+
 function renderWeeklyCalendar(history = {}) {
   const container = document.getElementById('weeklyCalendarGrid');
   if (!container) return;
@@ -425,9 +526,14 @@ function recordCompletedWorkout(workoutSession = {}) {
   if (!stats.weeklyHistory) stats.weeklyHistory = {};
   stats.weeklyHistory[today] = {
     workoutName,
+    category: workoutSession.category || 'Unknown',
+    difficulty: workoutSession.difficulty || 'Unknown',
     duration: minutes,
     calories,
-    completedAt: new Date().toISOString()
+    exercisesCompleted: Array.isArray(workoutSession.exercises) ? workoutSession.exercises.map(ex => ex.name || '').filter(Boolean) : [],
+    xpEarned: typeof workoutSession._xpEarned === 'number' ? workoutSession._xpEarned : 0,
+    completedAt: new Date().toISOString(),
+    completedSuccessfully: true
   };
 
   // 4. Daily Streak Engine

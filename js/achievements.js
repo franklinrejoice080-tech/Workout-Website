@@ -680,20 +680,31 @@ function animateStatNumber(el, startVal, endVal, suffix, duration) {
  * Public API: initialize()
  * Loads achievement state, sets first-run metadata, runs initial check.
  */
-function initialize() {
+function ensureInitialized() {
+  if (achievementState) return;
+
   const stored = loadStateFromStorage();
+
   achievementState = stored || getDefaultState();
-  if (!stored) saveStateToStorage();
+
+  if (!stored) {
+    saveStateToStorage();
+  }
+}
+
+function initialize() {
+  ensureInitialized();
+
   checkAchievements({ event: 'initialize' });
   render();
 }
-
 /**
  * Public API: getAchievements()
  * Returns all definitions enriched with progress and unlock state.
  * @returns {Array<Object>}
  */
 function getAchievements() {
+  ensureInitialized();
   const ctx = buildEvaluationContext();
   return ACHIEVEMENT_DEFINITIONS.map((def) => {
     const progress = computeProgress(def, ctx);
@@ -745,8 +756,8 @@ function unlock(id) {
  * @returns {Array<string>} Newly unlocked achievement ids
  */
 function checkAchievements(context = {}) {
-  if (!achievementState) initialize();
-
+  ensureInitialized();
+  
   const ctx = buildEvaluationContext(context);
   const newlyUnlocked = [];
 
