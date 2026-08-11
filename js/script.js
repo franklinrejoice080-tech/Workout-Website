@@ -1372,17 +1372,38 @@ function appendMsg(text, who){
   wrap.appendChild(m);
   wrap.scrollTop = wrap.scrollHeight;
 }
+/* Coach chat: Claude-first via ASCEND_COACH.generateCoachResponseAsync,
+   falling back to the local engine. One request in flight at a time. */
+let coachRequestInFlight = false;
+function coachDeliver(text){
+  if(!text || coachRequestInFlight) return;
+  const wrap = document.getElementById('coachMsgs');
+  if(!wrap) return;
+  coachRequestInFlight = true;
+  appendMsg(text, 'user');
+  const tip = document.createElement('div');
+  tip.className = 'msg bot';
+  tip.textContent = '…';
+  wrap.appendChild(tip);
+  wrap.scrollTop = wrap.scrollHeight;
+  const finish = (reply)=>{
+    tip.textContent = reply || '…';
+    coachRequestInFlight = false;
+  };
+  const responder = (window.ASCEND_COACH && typeof window.ASCEND_COACH.generateCoachResponseAsync === 'function')
+    ? window.ASCEND_COACH.generateCoachResponseAsync(text)
+    : Promise.resolve(coachReply(text));
+  responder.then(finish).catch(()=>finish(coachReply(text)));
+}
 function askCoach(q){
-  appendMsg(q, 'user');
-  setTimeout(()=>appendMsg(coachReply(q), 'bot'), 500);
+  coachDeliver(q);
 }
 function sendCoach(){
   const input = document.getElementById('coachInput');
   const val = input.value.trim();
   if(!val) return;
-  appendMsg(val, 'user');
   input.value='';
-  setTimeout(()=>appendMsg(coachReply(val), 'bot'), 500);
+  coachDeliver(val);
 }
 
 /* ---------- bottom nav active state ---------- */

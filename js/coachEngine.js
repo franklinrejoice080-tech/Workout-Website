@@ -916,6 +916,109 @@ const ASCEND_COACH = (() => {
     }, 60);
   }
 
+  /* ========== AI INTEGRATION (Claude via /api/coach, local fallback) ========== */
+
+  // Reference to the original keyword mock, captured at initialize() time.
+  let originalCoachReply = null;
+
+  /**
+   * Deterministic local fallback used whenever Claude is unavailable.
+   * Mirrors the original window.coachReply override chain:
+   * personalized topic engine first, then the keyword mock.
+   * @param {string} text
+   * @returns {string}
+   */
+  function fallbackResponse(text) {
+    const personalized = generateResponse(text);
+    if (personalized !== null) return personalized;
+    return originalCoachReply ? originalCoachReply(text) : '';
+  }
+
+  /**
+   * Builds the minimal read-only ASCEND context sent to /api/coach.
+   * Consumes existing modules only — never creates duplicate state.
+   * @returns {Object}
+   */
+  function buildApiContext() {
+    const ctx = collectContext();
+    const dash = ctx.dashboard || {};
+    const xpProg = ctx.xpProgress || {};
+    const week = getWeekStats(dash.weeklyHistory || {});
+    const session = (window.workoutEngine && typeof window.workoutEngine.getActiveSession === 'function')
+      ? window.workoutEngine.getActiveSession()
+      : null;
+
+    return {
+      level: xpProg.level || (ctx.xp && ctx.xp.level) || 1,
+      xp: (xpProg.currentXP != null) ? xpProg.currentXP : (ctx.xp ? ctx.xp.xp : 0),
+      xpRemainingToNext: (xpProg.remainingToNext != null) ? xpProg.remainingToNext : null,
+      streak: dash.currentStreak || 0,
+      totalWorkouts: dash.totalWorkouts || 0,
+      totalMinutes: dash.totalMinutes || 0,
+      caloriesBurned: dash.caloriesBurned || 0,
+      weeklyWorkouts: week.workouts || 0,
+      lastWorkoutDate: dash.lastWorkoutDate || null,
+      recentWorkouts: (Array.isArray(ctx.workoutHistory) ? ctx.workoutHistory.slice(0, 5) : []).map((w) => ({
+        name: w.workoutName || w.title || 'Workout',
+        date: w.date || w.completedAt || null,
+        duration: Number(w.duration) || 0,
+        calories: Number(w.calories) || 0,
+        category: w.category || null,
+        difficulty: w.difficulty || null
+      })),
+      achievementsUnlocked: ctx.unlockedAchievements ? ctx.unlockedAchievements.length : 0,
+      achievementsTotal: ctx.totalAchievements || 0,
+      todayFocus: generateTodayFocus(ctx),
+      activeSession: session ? {
+        title: session.title || null,
+        exerciseName: (Array.isArray(session.exercises) && session.exercises[session.currentExerciseIndex])
+          ? session.exercises[session.currentExerciseIndex].name
+          : null,
+        exerciseIndex: (session.currentExerciseIndex != null) ? session.currentExerciseIndex : 0,
+        totalExercises: Array.isArray(session.exercises) ? session.exercises.length : 0,
+        inRest: Boolean(session._inRest)
+      } : null
+    };
+  }
+
+  /**
+   * Async coach response: Claude first (via /api/coach), local engine as fallback.
+   * Always resolves with a string — never throws.
+   * @param {string} text
+   * @returns {Promise<string>}
+   */
+  async function generateCoachResponseAsync(text) {
+    const question = String(text || '').trim().slice(0, 800);
+
+    // 1) Claude via the serverless endpoint
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 12000);
+      let res;
+      try {
+        res = await fetch('/api/coach', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ message: question, context: buildApiContext() }),
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+      if (res && res.ok) {
+        const data = await res.json().catch(() => null);
+        if (data && data.ok === true && typeof data.reply === 'string' && data.reply.trim()) {
+          return data.reply.trim();
+        }
+      }
+    } catch (err) {
+      // network error, timeout, or malformed response — fall through to local
+    }
+
+    // 2) Local deterministic engine
+    return fallbackResponse(question);
+  }
+
   /* ========== RENDERING ========== */
 
   /**
@@ -1006,11 +1109,9 @@ const ASCEND_COACH = (() => {
     // If the question matches a personalized topic, use real data.
     // Otherwise, defer to the original keyword-based coachReply.
     if (typeof window.coachReply === 'function') {
-      const originalCoachReply = window.coachReply;
+      originalCoachReply = window.coachReply;
       window.coachReply = function (text) {
-        const personalized = generateResponse(text);
-        if (personalized !== null) return personalized;
-        return originalCoachReply(text);
+        return fallbackResponse(text);
       };
     }
 
@@ -1053,6 +1154,8 @@ const ASCEND_COACH = (() => {
     generateMotivation,
     generateTodayFocus,
     generateCoachBrief,
+    generateCoachResponseAsync,
+    buildApiContext,
     render,
     renderBrief,
     showDailyAdvice,

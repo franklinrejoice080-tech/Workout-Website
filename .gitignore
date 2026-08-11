@@ -1,2 +1,4 @@
 .ideavo/project
 *.log
+.env*
+!.env.example
