@@ -509,12 +509,18 @@ function logSessionToDashboard(session){
     }
   }
 
+  session._xpEarned = xpEarned;
+
   if(window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.recordCompletedWorkout === 'function'){
     window.ASCEND_DASHBOARD.recordCompletedWorkout(session);
   }
 
   if(window.ASCEND_WORKOUT_HISTORY && typeof window.ASCEND_WORKOUT_HISTORY.addRecord === 'function'){
     window.ASCEND_WORKOUT_HISTORY.addRecord(session, xpEarned);
+  }
+
+  if(window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.renderDashboard === 'function'){
+    window.ASCEND_DASHBOARD.renderDashboard(true);
   }
 }
 

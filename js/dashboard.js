@@ -613,6 +613,7 @@ window.ASCEND_DASHBOARD = {
   getStats,
   updateStats,
   renderDashboard,
+  updateXPDisplay,
   resetStats,
   recordCompletedWorkout,
   getStreakMilestones
