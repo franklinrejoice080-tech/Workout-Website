@@ -417,7 +417,11 @@ const ASCEND_COACH = (() => {
    * @returns {Object[]} Array of { icon, title, detail, progress }
    */
   function generateGoals() {
-    const ctx = collectContext();
+    return _generateGoals(collectContext());
+  }
+
+  /** Internal goal generator — shared by generateGoals() and the coach brief */
+  function _generateGoals(ctx) {
     const goals = [];
 
     // 1. XP / Level goal
@@ -630,9 +634,18 @@ const ASCEND_COACH = (() => {
     if (q.includes('week') || q.includes('summary')) {
       return generateWeeklyResponse(ctx);
     }
+    if (q.includes('train today') || q.includes('workout today') || q.includes("today's focus") || q.includes('what should i') || q.includes('focus on')) {
+      return generateFocusResponse(ctx);
+    }
 
     // null = defer to the original keyword-based coachReply
     return null;
+  }
+
+  /** Personalized answer for “what should I do today” style questions */
+  function generateFocusResponse(ctx) {
+    const focus = generateTodayFocus(ctx);
+    return `Today's focus: ${focus.label}. ${focus.message}`;
   }
 
   function generateProgressResponse(ctx) {
@@ -695,6 +708,212 @@ const ASCEND_COACH = (() => {
   function generateWeeklyResponse(ctx) {
     const summary = generateWeeklySummary();
     return `This week: ${summary.workouts} workouts, ${summary.minutes} min, ${summary.calories} kcal. ${summary.suggestion}`;
+  }
+
+  /* ========== TODAY'S FOCUS & COACH BRIEF ========== */
+
+  /**
+   * Greets the user by time of day, using the auth profile name when available.
+   * @returns {string} e.g. "Good morning, Rejoice."
+   */
+  function generateGreeting() {
+    const hour = new Date().getHours();
+    const part = hour < 12 ? 'Good morning' : (hour < 18 ? 'Good afternoon' : 'Good evening');
+    let name = '';
+    try {
+      if (typeof getCurrentUser === 'function') {
+        const user = getCurrentUser();
+        if (user) {
+          const raw = String(user.name || user.email || '').trim();
+          if (raw) name = raw.split(' ')[0];
+        }
+      }
+    } catch (err) { /* greeting stays generic */ }
+    return name ? `${part}, ${name}.` : `${part}.`;
+  }
+
+  /**
+   * One-line status headline derived from real streak / activity data.
+   * @returns {string}
+   */
+  function generateHeadline(ctx) {
+    const dash = ctx.dashboard;
+    if (!dash) return 'Welcome to ASCEND Coach.';
+    const streak = dash.currentStreak || 0;
+    const total = dash.totalWorkouts || 0;
+    const today = getTodayDateString();
+    const last = dash.lastWorkoutDate;
+    const workedOutToday = last === today;
+
+    if (streak > 0 && workedOutToday) return `You're on a ${streak}-day streak.`;
+    if (streak > 0) return `You're on a ${streak}-day streak — keep it alive today.`;
+    if (last) {
+      const away = getDaysBetween(last, today);
+      if (away >= 2) return `You haven't trained in ${away} days.`;
+    }
+    if (total === 0) return 'Your ASCEND journey starts today.';
+    return `You've completed ${total} workout${total === 1 ? '' : 's'} so far.`;
+  }
+
+  /**
+   * Deterministic "Today's Focus" recommendation based on real activity.
+   * @returns {Object} { label, message }
+   */
+  function generateTodayFocus(ctx) {
+    const dash = ctx.dashboard;
+    const total = dash ? (dash.totalWorkouts || 0) : 0;
+    const streak = dash ? (dash.currentStreak || 0) : 0;
+    const today = getTodayDateString();
+    const last = dash ? dash.lastWorkoutDate : null;
+    const workedOutToday = last === today;
+    const away = last ? getDaysBetween(last, today) : Infinity;
+    const week = getWeekStats((dash && dash.weeklyHistory) || {});
+    const xpProg = ctx.xpProgress;
+    const remaining = xpProg ? (xpProg.remainingToNext || 0) : Infinity;
+    const nextLevel = xpProg ? ((xpProg.level || 1) + 1) : 2;
+
+    if (total === 0) {
+      return { label: 'START', message: 'Your first session is the whole game today. Keep it simple and finish it.' };
+    }
+    if (away >= 3) {
+      return { label: 'MOMENTUM', message: `You've been away ${away} days. A shorter session today is the fastest way back.` };
+    }
+    if (workedOutToday && streak >= 7) {
+      return { label: 'RECOVERY', message: 'You trained today and your week is strong. Protect it with recovery, not volume.' };
+    }
+    if (workedOutToday) {
+      return { label: 'CONSISTENCY', message: 'You trained today. Consistency is the habit — showing up tomorrow keeps it alive.' };
+    }
+    if (remaining <= 120) {
+      return { label: 'PROGRESS', message: `You're ${remaining} XP from Level ${nextLevel}. One completed workout moves you much closer.` };
+    }
+    if (week.workouts >= 4) {
+      return { label: 'RECOVERY', message: `You're having a strong week (${week.workouts} sessions). Recovery matters as much as the sessions.` };
+    }
+    if (streak >= 3) {
+      return { label: 'CONSISTENCY', message: `Your ${streak}-day streak is your strongest signal. Keep it alive today.` };
+    }
+    if (streak >= 1) {
+      return { label: 'CONSISTENCY', message: "You're building momentum. Keep today's session simple and complete it." };
+    }
+    return { label: 'MOMENTUM', message: 'Every run of consistency starts with a single day. Make today that day.' };
+  }
+
+  /* In-memory signal tracking for brief acknowledgments (no storage) */
+  let seenUnlocks = null;
+  let seenLevel = null;
+
+  function detectFreshSignals(ctx) {
+    const signals = [];
+
+    // Newly unlocked achievements since the last brief render
+    const unlocked = (ctx.unlockedAchievements || []).map((a) => a.id);
+    const currentUnlocks = new Set(unlocked);
+    if (seenUnlocks === null) {
+      seenUnlocks = currentUnlocks;
+    } else {
+      const fresh = unlocked.filter((id) => !seenUnlocks.has(id));
+      if (fresh.length) {
+        const def = (ctx.achievements || []).find((a) => a.id === fresh[fresh.length - 1]);
+        if (def) signals.push({ type: 'achievement', title: def.title });
+      }
+      seenUnlocks = currentUnlocks;
+    }
+
+    // Level up since the last brief render
+    const level = ctx.xp ? (ctx.xp.level || 1) : 1;
+    if (seenLevel === null) {
+      seenLevel = level;
+    } else if (level > seenLevel) {
+      signals.push({ type: 'levelUp', level });
+      seenLevel = level;
+    }
+
+    return signals;
+  }
+
+  /**
+   * Structured coach brief — the premium dashboard-card payload.
+   * @returns {Object} { greeting, headline, focus, stats, nextGoal, cta, acknowledgment }
+   */
+  function generateCoachBrief() {
+    const ctx = collectContext();
+    const signals = detectFreshSignals(ctx);
+
+    const stats = {
+      level: ctx.xp ? (ctx.xp.level || 1) : 1,
+      xp: ctx.xp ? (ctx.xp.xp || 0) : 0,
+      xpToNext: ctx.xpProgress ? (ctx.xpProgress.remainingToNext || 0) : 0,
+      streak: ctx.dashboard ? (ctx.dashboard.currentStreak || 0) : 0,
+      workouts: ctx.dashboard ? (ctx.dashboard.totalWorkouts || 0) : 0
+    };
+
+    const goals = _generateGoals(ctx);
+    const nextGoal = goals.length ? goals[0] : { title: 'Complete your first workout', detail: 'Start your ASCEND journey' };
+
+    let acknowledgment = null;
+    if (signals.length) {
+      const last = signals[signals.length - 1];
+      acknowledgment = last.type === 'levelUp'
+        ? { type: 'levelUp', text: `Level up — you're now Level ${last.level}. Your next target is Level ${last.level + 1}.` }
+        : { type: 'achievement', text: `New achievement unlocked — ${last.title}.` };
+    }
+
+    return {
+      greeting: generateGreeting(),
+      headline: generateHeadline(ctx),
+      focus: generateTodayFocus(ctx),
+      stats,
+      nextGoal,
+      cta: { label: "START TODAY'S WORKOUT" },
+      acknowledgment
+    };
+  }
+
+  /** Renders the premium coach brief card into #coachBrief */
+  function renderBrief() {
+    const el = document.getElementById('coachBrief');
+    if (!el) return;
+    const brief = generateCoachBrief();
+    const stats = brief.stats;
+    const ack = brief.acknowledgment
+      ? `<div class="coach-brief-ack" role="status">${escapeHtml(brief.acknowledgment.text)}</div>`
+      : '';
+    el.innerHTML = `
+      <div class="coach-brief-main">
+        <span class="eyebrow-sm">ASCEND Coach</span>
+        <h3>${escapeHtml(brief.greeting)}</h3>
+        <p class="coach-brief-headline">${escapeHtml(brief.headline)}</p>
+        ${ack}
+        <div class="coach-focus">
+          <span class="coach-focus-label">Today's Focus</span>
+          <strong>${escapeHtml(brief.focus.label)}</strong>
+          <p>${escapeHtml(brief.focus.message)}</p>
+        </div>
+        <button type="button" class="btn-primary" onclick="if(window.openWorkoutSession)openWorkoutSession()">▶ ${escapeHtml(brief.cta.label)}</button>
+      </div>
+      <div class="coach-brief-side">
+        <div class="coach-brief-stat"><span>Level</span><b>${stats.level}</b></div>
+        <div class="coach-brief-stat"><span>XP</span><b>${stats.xp}</b></div>
+        <div class="coach-brief-stat"><span>Streak</span><b>${stats.streak} day${stats.streak === 1 ? '' : 's'}</b></div>
+        <div class="coach-brief-stat"><span>Workouts</span><b>${stats.workouts}</b></div>
+        <div class="coach-brief-goal">
+          <span>Next goal</span>
+          <b>${escapeHtml(brief.nextGoal.title)}</b>
+          <small>${escapeHtml(brief.nextGoal.detail)}</small>
+        </div>
+      </div>
+    `;
+  }
+
+  /* Debounced re-render so bursts of events only refresh the card once */
+  let briefRefreshTimer = null;
+  function scheduleBriefRefresh() {
+    if (briefRefreshTimer) return;
+    briefRefreshTimer = setTimeout(() => {
+      briefRefreshTimer = null;
+      renderBrief();
+    }, 60);
   }
 
   /* ========== RENDERING ========== */
@@ -795,8 +1014,15 @@ const ASCEND_COACH = (() => {
       };
     }
 
+    // Keep the coach brief in sync with meaningful ASCEND events
+    if (typeof window.addEventListener === 'function') {
+      window.addEventListener('ascend:levelUp', scheduleBriefRefresh);
+      window.addEventListener('ascend:workoutCompleted', scheduleBriefRefresh);
+    }
+
     // Replace the static greeting with personalized daily advice
     render();
+    renderBrief();
   }
 
   /**
@@ -825,7 +1051,10 @@ const ASCEND_COACH = (() => {
     generateWeeklySummary,
     generateGoals,
     generateMotivation,
+    generateTodayFocus,
+    generateCoachBrief,
     render,
+    renderBrief,
     showDailyAdvice,
     showWeeklySummary,
     showGoals,

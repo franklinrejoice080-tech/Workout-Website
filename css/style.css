@@ -431,6 +431,41 @@ section{padding:130px 0;}
 }
 .coach-input button{background:var(--red); color:var(--white); width:46px; height:46px; border-radius:50%; flex-shrink:0; font-size:16px;}
 
+/* ---------- COACH BRIEF ---------- */
+.coach-brief{
+  display:flex; gap:0; border-radius:var(--radius); border:1px solid var(--line); overflow:hidden;
+  background:linear-gradient(120deg, var(--charcoal), #1d1514); margin-bottom:26px;
+}
+@media(max-width:800px){.coach-brief{flex-direction:column;}}
+.coach-brief-main{flex:1.4; padding:38px 42px;}
+@media(max-width:600px){.coach-brief-main{padding:28px 22px;}}
+.coach-brief-main h3{font-family:'Fraunces',serif; font-size:clamp(20px,2.4vw,28px); font-weight:600; line-height:1.2; margin-bottom:8px;}
+.coach-brief-headline{font-size:14px; color:var(--gray); line-height:1.55; max-width:520px;}
+.coach-brief-ack{
+  display:inline-block; margin-top:14px; padding:9px 14px; border-radius:100px; font-size:13px;
+  background:rgba(46,204,113,0.12); border:1px solid rgba(46,204,113,0.35); color:#7ee2a4;
+}
+.coach-focus{margin-top:22px; padding:18px 20px; border-radius:14px; border:1px solid var(--line); background:rgba(245,245,242,0.03);}
+.coach-focus-label{display:block; font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--gray); margin-bottom:6px;}
+.coach-focus strong{font-size:20px; font-weight:700; letter-spacing:0.06em; color:var(--red);}
+.coach-focus p{font-size:13.5px; color:var(--beige); line-height:1.5; margin-top:6px;}
+.coach-brief-main .btn-primary{margin-top:24px; font-size:14px; padding:14px 26px;}
+.coach-brief-side{
+  flex:0 0 300px; border-left:1px solid var(--line); padding:38px 34px; display:flex; flex-direction:column; gap:20px;
+  background:rgba(215,38,56,0.04);
+}
+@media(max-width:800px){.coach-brief-side{border-left:none; border-top:1px solid var(--line);}}
+.coach-brief-stat{display:flex; justify-content:space-between; align-items:baseline; padding-bottom:14px; border-bottom:1px solid var(--line);}
+.coach-brief-stat span{font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gray);}
+.coach-brief-stat b{font-size:19px; font-weight:700; color:var(--white); font-variant-numeric:tabular-nums;}
+.coach-brief-goal{margin-top:auto; padding:18px; border-radius:14px; background:var(--charcoal); border:1px solid var(--line);}
+.coach-brief-goal span{display:block; font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--gray); margin-bottom:6px;}
+.coach-brief-goal b{display:block; font-size:15px; font-weight:600; color:var(--beige);}
+.coach-brief-goal small{display:block; font-size:12px; color:var(--gray); margin-top:4px; line-height:1.45;}
+@media(prefers-reduced-motion:reduce){
+  .coach-brief .btn-primary{transition:none;}
+}
+
 /* ---------- FOOTER ---------- */
 footer{background:var(--charcoal); border-top:1px solid var(--line); padding:80px 0 30px;}
 .foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; margin-bottom:60px;}

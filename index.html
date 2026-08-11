@@ -490,6 +490,7 @@
       </div>
       <p class="section-desc">Form checks, recovery advice, nutrition guidance — always available.</p>
     </div>
+    <div class="coach-brief reveal" id="coachBrief" aria-live="polite"></div>
     <div class="coach-shell reveal">
       <div class="coach-side">
         <h4>Your Coach</h4>
@@ -498,6 +499,9 @@
         <button class="suggest-chip" onclick="ASCEND_COACH.showWeeklySummary()">📈 Weekly Summary</button>
         <button class="suggest-chip" onclick="ASCEND_COACH.showGoals()">🎯 My Goals</button>
         <button class="suggest-chip" onclick="ASCEND_COACH.showMotivation()">💪 Motivate Me</button>
+        <button class="suggest-chip" onclick="askCoach('What should I train today?')">🎯 What should I train today?</button>
+        <button class="suggest-chip" onclick="askCoach('How am I progressing?')">📈 How am I progressing?</button>
+        <button class="suggest-chip" onclick="askCoach('How close am I to my next level?')">⏫ How close am I to my next level?</button>
       </div>
       <div class="coach-main">
         <div class="coach-msgs" id="coachMsgs">

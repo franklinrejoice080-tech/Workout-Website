@@ -522,6 +522,11 @@ function logSessionToDashboard(session){
   if(window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.renderDashboard === 'function'){
     window.ASCEND_DASHBOARD.renderDashboard(true);
   }
+
+  // Notify ASCEND Coach (and any other listeners) that a workout was completed
+  try {
+    window.dispatchEvent(new CustomEvent('ascend:workoutCompleted', { detail: { session } }));
+  } catch(e){ /* non-critical */ }
 }
 
 function startExerciseTimer(session){
