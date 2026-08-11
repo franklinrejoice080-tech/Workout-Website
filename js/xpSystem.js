@@ -93,6 +93,18 @@ function savePlayer() {
  */
 function getPlayer() {
   player.level = getLevelFromXP(player.xp);
+  // Keep the player streak fields consistent with the dashboard module, which
+  // is the source of truth for streak tracking. Without this sync, player.streak
+  // would remain 0 forever and consumers (coach, user menu) would see stale data.
+  if (window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.getStats === 'function') {
+    try {
+      const stats = window.ASCEND_DASHBOARD.getStats();
+      player.streak = Math.max(0, Number(stats.currentStreak) || 0);
+      player.lastWorkoutDate = stats.lastWorkoutDate || player.lastWorkoutDate;
+    } catch (err) {
+      console.warn('[ASCEND XP] Failed to sync streak from dashboard:', err);
+    }
+  }
   return { ...player };
 }
 

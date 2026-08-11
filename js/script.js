@@ -1056,6 +1056,7 @@ function skipExercise(){
   activeSession._exerciseComplete = false;
   renderWorkoutSession();
   if(result && result.completed){
+    activeSession.status = 'completed';
     logSessionToDashboard(activeSession);
     showToast('Workout complete — great work! 🎉');
   } else {

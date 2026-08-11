@@ -1,0 +1,36 @@
+warning: in the working copy of 'js/xpSystem.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/js/script.js b/js/script.js[m
+[1mindex c8a798e..f806a9e 100644[m
+[1m--- a/js/script.js[m
+[1m+++ b/js/script.js[m
+[36m@@ -1056,6 +1056,7 @@[m [mfunction skipExercise(){[m
+   activeSession._exerciseComplete = false;[m
+   renderWorkoutSession();[m
+   if(result && result.completed){[m
+[32m+[m[32m    activeSession.status = 'completed';[m
+     logSessionToDashboard(activeSession);[m
+     showToast('Workout complete — great work! 🎉');[m
+   } else {[m
+[1mdiff --git a/js/xpSystem.js b/js/xpSystem.js[m
+[1mindex ff2fd26..e579d7b 100644[m
+[1m--- a/js/xpSystem.js[m
+[1m+++ b/js/xpSystem.js[m
+[36m@@ -93,6 +93,18 @@[m [mfunction savePlayer() {[m
+  */[m
+ function getPlayer() {[m
+   player.level = getLevelFromXP(player.xp);[m
+[32m+[m[32m  // Keep the player streak fields consistent with the dashboard module, which[m
+[32m+[m[32m  // is the source of truth for streak tracking. Without this sync, player.streak[m
+[32m+[m[32m  // would remain 0 forever and consumers (coach, user menu) would see stale data.[m
+[32m+[m[32m  if (window.ASCEND_DASHBOARD && typeof window.ASCEND_DASHBOARD.getStats === 'function') {[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      const stats = window.ASCEND_DASHBOARD.getStats();[m
+[32m+[m[32m      player.streak = Math.max(0, Number(stats.currentStreak) || 0);[m
+[32m+[m[32m      player.lastWorkoutDate = stats.lastWorkoutDate || player.lastWorkoutDate;[m
+[32m+[m[32m    } catch (err) {[m
+[32m+[m[32m      console.warn('[ASCEND XP] Failed to sync streak from dashboard:', err);[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+   return { ...player };[m
+ }[m
+ [m
