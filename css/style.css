@@ -402,6 +402,36 @@ footer{background:var(--charcoal); border-top:1px solid var(--line); padding:80p
 .workout-session-actions button.success{background:var(--green); color:#072214;} 
 .workout-session-empty{padding:24px; border:1px dashed var(--line); border-radius:18px; color:var(--gray); text-align:center;} 
 @media(max-width:720px){.workout-session-card{padding:24px;} .workout-session-actions{flex-direction:column;} .workout-session-actions button{width:100%;}}
+
+/* ---------- TETRIS EXERCISE PROGRESS ---------- */
+.tetris-progress{
+  margin-top:20px; padding-top:18px; border-top:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+}
+.tetris-grid{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:6px;
+  width:min(230px,100%); padding:14px; border-radius:18px;
+  background:rgba(245,245,242,0.03); border:1px solid var(--line);
+  transition:opacity .3s var(--ease);
+}
+.tetris-grid.is-rest{opacity:.45;}
+.tetris-cell{
+  aspect-ratio:1; border-radius:6px;
+  background:rgba(245,245,242,0.06); border:1px solid rgba(245,245,242,0.05);
+}
+.tetris-cell.filled{
+  background:var(--red); border-color:var(--red);
+  box-shadow:0 0 14px rgba(215,38,56,0.35), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+.tetris-cell.fill-anim{animation:tetrisCellIn .5s var(--ease) both;}
+@keyframes tetrisCellIn{
+  from{opacity:0; transform:scale(.65); box-shadow:0 0 0 rgba(215,38,56,0);}
+  to{opacity:1; transform:scale(1); box-shadow:0 0 14px rgba(215,38,56,0.35), inset 0 1px 0 rgba(255,255,255,0.16);}
+}
+.tetris-label{font-size:12px; color:var(--gray); letter-spacing:0.06em; text-transform:uppercase;}
+@media (prefers-reduced-motion: reduce){
+  .tetris-cell.fill-anim{animation:none;}
+}
 .modal-close{position:absolute; top:16px; right:16px; width:38px; height:38px; border-radius:50%; background:rgba(245,245,242,0.06); color:var(--white); font-size:20px; border:1px solid var(--line);} 
 .auth-head{margin-bottom:24px;}
 .auth-head h3{font-size:24px; font-weight:600; margin-bottom:8px;}

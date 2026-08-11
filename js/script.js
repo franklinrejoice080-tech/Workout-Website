@@ -672,6 +672,100 @@ function getWorkoutSessionActionMarkup(session){
   `;
 }
 
+/* ---------- tetris exercise progress ---------- */
+// Deterministic 5x5 fill pattern. Cells (row-major 0-24) reveal in this exact
+// order as the real exercise timer progresses — never randomized per render.
+const TETRIS_COLS = 5;
+const TETRIS_FILL_ORDER = [
+  0, 1, 5, 6,       // O piece — top-left square
+  4, 9, 13, 14,     // L piece — right-edge line with a foot
+  7, 8, 12, 11,     // square — center cluster
+  15, 16, 17, 18,   // I piece — horizontal bar
+  3, 10, 19, 24,    // vertical accents
+  2, 20, 21, 22, 23 // final row + top-left fill
+];
+const TETRIS_CELL_MARKUP = (() => {
+  const orderIndex = new Map(TETRIS_FILL_ORDER.map((cell, i) => [cell, i]));
+  return Array.from({ length: TETRIS_COLS * TETRIS_COLS }, (_, cell) =>
+    `<span class="tetris-cell" data-cell="${cell}" data-order="${orderIndex.get(cell)}" aria-hidden="true"></span>`
+  ).join('');
+})();
+
+// Progress is always derived from the REAL session timer state:
+//   elapsed / total  =  (durationSeconds - _exerciseRemaining) / durationSeconds
+function getTetrisState(session){
+  if(!session || session.completed) return { mode: 'done', pct: 100 };
+  if(session._inRest || workoutTimer.mode === 'rest') return { mode: 'rest', pct: 0 };
+  const exercise = (Array.isArray(session.exercises) && session.exercises[session.currentExerciseIndex]) || null;
+  const duration = Number(exercise && exercise.durationSeconds) || 60;
+  const remaining = typeof session._exerciseRemaining === 'number' ? session._exerciseRemaining : duration;
+  const pct = ((duration - Math.min(Math.max(remaining, 0), duration)) / duration) * 100;
+  return { mode: 'exercise', pct };
+}
+
+function getTetrisMarkup(session){
+  const state = getTetrisState(session);
+  const pct = Math.round(state.pct);
+  return `
+    <div class="tetris-progress">
+      <div class="tetris-grid" data-tetris-grid role="progressbar" aria-label="Exercise progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-valuetext="Exercise progress: ${pct} percent">
+        ${TETRIS_CELL_MARKUP}
+      </div>
+      <div class="tetris-label" data-tetris-label>${state.mode === 'rest' ? 'Rest' : pct + '% complete'}</div>
+    </div>
+  `;
+}
+
+// Applies the filled state to the grid shell after each render. Only cells that
+// were revealed since the previous tick play the fill animation, so the grid
+// cascades smoothly instead of re-animating every second.
+function syncTetrisGrid(viewport, session){
+  const grid = viewport && viewport.querySelector('[data-tetris-grid]');
+  if(!grid) return;
+  const state = getTetrisState(session);
+  const cells = grid.querySelectorAll('.tetris-cell');
+  const label = grid.parentElement && grid.parentElement.querySelector('[data-tetris-label]');
+
+  if(state.mode === 'rest'){
+    grid.classList.add('is-rest');
+    cells.forEach(c=>c.classList.remove('filled'));
+    grid.setAttribute('aria-valuenow', '0');
+    grid.setAttribute('aria-valuetext', 'Resting — next exercise starts soon');
+    if(label) label.textContent = 'Rest';
+    if(session) session._tetrisFilled = 0;
+    return;
+  }
+
+  grid.classList.remove('is-rest');
+  const total = TETRIS_FILL_ORDER.length;
+  const prev = session && typeof session._tetrisFilled === 'number' ? session._tetrisFilled : 0;
+  const newCount = Math.max(0, Math.min(total, Math.round((state.pct / 100) * total)));
+  const pct = Math.round(state.pct);
+  grid.setAttribute('aria-valuenow', String(pct));
+  grid.setAttribute('aria-valuetext', `Exercise progress: ${pct} percent`);
+  if(label) label.textContent = `${pct}% complete`;
+
+  cells.forEach(cell=>{
+    const order = Number(cell.dataset.order);
+    if(order < newCount){
+      cell.classList.add('filled');
+      if(order >= prev){
+        // newly revealed this render — stagger the fill-in micro-transition
+        cell.style.animationDelay = ((order - prev) * 50) + 'ms';
+        cell.classList.add('fill-anim');
+      } else {
+        cell.classList.remove('fill-anim');
+        cell.style.animationDelay = '0ms';
+      }
+    } else {
+      cell.classList.remove('filled', 'fill-anim');
+      cell.style.animationDelay = '0ms';
+    }
+  });
+
+  if(session) session._tetrisFilled = newCount;
+}
+
 function getWorkoutSessionMarkup(session){
   if(!session) return '<div class="workout-session-empty">No workout session is available.</div>';
 
@@ -743,6 +837,7 @@ function getWorkoutSessionMarkup(session){
             <div style="font-size:12px; color:var(--gray); margin-top:6px;">${session.status === 'paused' || workoutSessionPaused ? 'Paused' : session.status === 'running' ? 'In progress' : 'Ready'}</div>
           `}
         </div>
+        ${getTetrisMarkup(session)}
       </div>
     </div>
   `;
@@ -757,6 +852,7 @@ function renderWorkoutSession(){
   if(actions){
     actions.innerHTML = getWorkoutSessionActionMarkup(activeSession);
   }
+  syncTetrisGrid(viewport, activeSession);
 }
 
 function startWorkoutSessionAction(){
