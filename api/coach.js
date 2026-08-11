@@ -162,22 +162,36 @@ module.exports = async function handler(req, res) {
         return;
       }
 
-      // Log only the safe upstream error type (short enum), never the body.
+      // --- Failed Anthropic response: log SAFE diagnostics only ------------
+      // Fields logged: model, HTTP status, error.type, error.message,
+      // request_id. NEVER logged: the API key, authorization headers, the
+      // full request body, user messages, or the system prompt.
+      let errType = '(unknown)';
+      let errMsg = '(unavailable)';
+      let reqId = null;
+      try {
+        const errBody = await upstream.json();
+        const err = errBody && errBody.error && typeof errBody.error === 'object' ? errBody.error : {};
+        if (typeof err.type === 'string' && err.type) errType = err.type;
+        if (typeof err.message === 'string' && err.message) errMsg = err.message.slice(0, 300);
+        if (typeof errBody.request_id === 'string' && errBody.request_id) reqId = errBody.request_id;
+      } catch (_) { /* error body not parseable — keep defaults */ }
+
+      console.log('[ASCEND Coach] Anthropic rejection ' + JSON.stringify({
+        model: model,
+        status: upstream.status,
+        errorType: errType,
+        errorMessage: errMsg,
+        requestId: reqId
+      }));
+      // ---------------------------------------------------------------------
+
       if (upstream.status === 400) {
-        let errType = 'invalid_request';
-        try {
-          const errBody = await upstream.json();
-          if (errBody && errBody.error && typeof errBody.error.type === 'string') {
-            errType = errBody.error.type;
-          }
-        } catch (_) { /* body not parseable — fine */ }
-        console.log('[ASCEND Coach] model rejected (400, type:', errType + ') — trying next model');
         continue; // try the next model in the chain
       }
 
       // Auth, rate-limit and server errors are not model-specific — surface
       // them without retrying and never echo the upstream body.
-      console.log('[ASCEND Coach] Anthropic error (status:', upstream.status + ')');
       res.status(502).json({ ok: false, reason: 'upstream', status: upstream.status });
       return;
     }
