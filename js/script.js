@@ -1373,27 +1373,38 @@ function appendMsg(text, who){
   wrap.scrollTop = wrap.scrollHeight;
 }
 /* Coach chat: Claude-first via ASCEND_COACH.generateCoachResponseAsync,
-   falling back to the local engine. One request in flight at a time. */
+   falling back to the local engine. One request in flight at a time.
+   The status pill (#coachStatus) reflects which engine actually answered. */
 let coachRequestInFlight = false;
+function setCoachStatus(state){
+  const el = document.getElementById('coachStatus');
+  if(!el) return;
+  const labels = { thinking:'Thinking…', claude:'Claude Coach', local:'Local Coach' };
+  el.setAttribute('data-state', state);
+  el.textContent = labels[state] || labels.local;
+}
 function coachDeliver(text){
   if(!text || coachRequestInFlight) return;
   const wrap = document.getElementById('coachMsgs');
   if(!wrap) return;
   coachRequestInFlight = true;
+  setCoachStatus('thinking');
   appendMsg(text, 'user');
   const tip = document.createElement('div');
   tip.className = 'msg bot';
   tip.textContent = '…';
   wrap.appendChild(tip);
   wrap.scrollTop = wrap.scrollHeight;
-  const finish = (reply)=>{
+  const finish = (out)=>{
+    const reply = (out && typeof out === 'object') ? out.reply : out;
     tip.textContent = reply || '…';
+    setCoachStatus((out && out.source === 'claude') ? 'claude' : 'local');
     coachRequestInFlight = false;
   };
   const responder = (window.ASCEND_COACH && typeof window.ASCEND_COACH.generateCoachResponseAsync === 'function')
     ? window.ASCEND_COACH.generateCoachResponseAsync(text)
-    : Promise.resolve(coachReply(text));
-  responder.then(finish).catch(()=>finish(coachReply(text)));
+    : Promise.resolve({ reply: coachReply(text), source: 'local-fallback' });
+  responder.then(finish).catch(()=>finish({ reply: coachReply(text), source: 'local-fallback' }));
 }
 function askCoach(q){
   coachDeliver(q);

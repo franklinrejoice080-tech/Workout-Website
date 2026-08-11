@@ -10,11 +10,12 @@
  *
  * Client contract:
  *   Request  → { message: string, context: object }
- *   Response → 200 { ok: true,  reply: string }
+ *   Response → 200 { ok: true,  reply: string, source: 'claude' }
  *              400 { ok: false, reason: 'bad-request' }  (invalid input)
  *              405 { ok: false, reason: 'method' }        (non-POST)
  *              503 { ok: false, reason: 'no-key' }        (API not configured)
- *              502 { ok: false, reason: 'upstream' }      (Anthropic error)
+ *              502 { ok: false, reason: 'upstream', status: n }  (Anthropic error)
+ *              502 { ok: false, reason: 'model_error' }  (every model rejected)
  *              504 { ok: false, reason: 'timeout' }       (aborted)
  *
  * Any non-ok response must be treated by the client as "use the local coach".
@@ -25,6 +26,13 @@ const ANTHROPIC_VERSION = '2023-06-01';
 const DEFAULT_MODEL = 'claude-haiku-4-5';
 const MAX_MESSAGE_LENGTH = 800;
 const TIMEOUT_MS = 8000;
+
+/**
+ * Known-good fallback models used when the configured ANTHROPIC_MODEL is
+ * rejected by the API (Anthropic returns 400 for an invalid/unavailable
+ * model name). The configured model is always tried first.
+ */
+const FALLBACK_MODELS = ['claude-sonnet-5', 'claude-haiku-4-5'];
 
 /** Builds the system prompt from the (client-provided) ASCEND context. */
 function buildSystemPrompt(context) {
@@ -50,6 +58,20 @@ function extractReply(data) {
     .map((block) => block.text)
     .join(' ')
     .trim();
+}
+
+/**
+ * Ordered list of models to attempt: the configured one first (trimmed so a
+ * stray newline/space in the env var cannot break the request), then the
+ * known-good fallbacks. No duplicates.
+ */
+function modelCandidates() {
+  const configured = String(process.env.ANTHROPIC_MODEL || '').trim();
+  const list = [configured || DEFAULT_MODEL];
+  FALLBACK_MODELS.forEach((m) => {
+    if (list.indexOf(m) === -1) list.push(m);
+  });
+  return list;
 }
 
 module.exports = async function handler(req, res) {
@@ -83,46 +105,86 @@ module.exports = async function handler(req, res) {
   }
   message = message.slice(0, MAX_MESSAGE_LENGTH);
 
-  // Call Anthropic with a hard timeout (Vercel Hobby functions cap at ~10s)
+  // Safe server-side diagnostics — never log the key or the full context.
+  console.log('[ASCEND Coach] request received');
+  console.log('[ASCEND Coach] API key configured:', Boolean(apiKey));
+  console.log('[ASCEND Coach] model configured:', Boolean(process.env.ANTHROPIC_MODEL));
+
+  const models = modelCandidates();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const upstream = await fetch(ANTHROPIC_API_URL, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': ANTHROPIC_VERSION
-      },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL || DEFAULT_MODEL,
-        max_tokens: 300,
-        system: buildSystemPrompt(context),
-        messages: [{ role: 'user', content: message }]
-      }),
-      signal: controller.signal
-    });
+    // Try the configured model first; if Anthropic rejects it (400), retry
+    // with known-good models. 400s return immediately, so the chain stays
+    // well within the function timeout.
+    for (const model of models) {
+      console.log('[ASCEND Coach] Anthropic request started (model:', model + ')');
+      let upstream;
+      try {
+        upstream = await fetch(ANTHROPIC_API_URL, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': ANTHROPIC_VERSION
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: 300,
+            system: buildSystemPrompt(context),
+            messages: [{ role: 'user', content: message }]
+          }),
+          signal: controller.signal
+        });
+      } catch (err) {
+        // Abort or network failure — no point retrying another model.
+        const timedOut = err && err.name === 'AbortError';
+        console.log('[ASCEND Coach] Anthropic request failed:', timedOut ? 'timeout' : 'network');
+        res.status(timedOut ? 504 : 502).json({
+          ok: false,
+          reason: timedOut ? 'timeout' : 'error'
+        });
+        return;
+      }
 
-    if (!upstream.ok) {
-      // Never echo the upstream body — it may contain sensitive details
+      console.log('[ASCEND Coach] Anthropic response received (status:', upstream.status + ')');
+
+      if (upstream.ok) {
+        const data = await upstream.json();
+        const reply = extractReply(data);
+        if (!reply) {
+          console.log('[ASCEND Coach] Anthropic response had no text');
+          res.status(502).json({ ok: false, reason: 'empty-reply' });
+          return;
+        }
+        console.log('[ASCEND Coach] reply generated (model:', model + ')');
+        res.status(200).json({ ok: true, reply, source: 'claude' });
+        return;
+      }
+
+      // Log only the safe upstream error type (short enum), never the body.
+      if (upstream.status === 400) {
+        let errType = 'invalid_request';
+        try {
+          const errBody = await upstream.json();
+          if (errBody && errBody.error && typeof errBody.error.type === 'string') {
+            errType = errBody.error.type;
+          }
+        } catch (_) { /* body not parseable — fine */ }
+        console.log('[ASCEND Coach] model rejected (400, type:', errType + ') — trying next model');
+        continue; // try the next model in the chain
+      }
+
+      // Auth, rate-limit and server errors are not model-specific — surface
+      // them without retrying and never echo the upstream body.
+      console.log('[ASCEND Coach] Anthropic error (status:', upstream.status + ')');
       res.status(502).json({ ok: false, reason: 'upstream', status: upstream.status });
       return;
     }
 
-    const data = await upstream.json();
-    const reply = extractReply(data);
-    if (!reply) {
-      res.status(502).json({ ok: false, reason: 'empty-reply' });
-      return;
-    }
-
-    res.status(200).json({ ok: true, reply });
-  } catch (err) {
-    const timedOut = err && err.name === 'AbortError';
-    res.status(timedOut ? 504 : 502).json({
-      ok: false,
-      reason: timedOut ? 'timeout' : 'error'
-    });
+    // Every candidate model was rejected with a 400.
+    console.log('[ASCEND Coach] all models rejected');
+    res.status(502).json({ ok: false, reason: 'model_error' });
   } finally {
     clearTimeout(timer);
   }

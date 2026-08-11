@@ -982,19 +982,51 @@ const ASCEND_COACH = (() => {
   }
 
   /**
+   * Maps a failed /api/coach attempt to a safe, loggable error type.
+   * Never contains secrets or upstream bodies.
+   * @param {Response|null} res
+   * @param {Error|null} err
+   * @returns {string}
+   */
+  function classifyCoachError(res, err) {
+    if (err) {
+      if (err.name === 'AbortError') return 'timeout';
+      return 'network_error';
+    }
+    if (!res) return 'network_error';
+    const reason = (res.reason && typeof res.reason === 'string') ? res.reason : '';
+    switch (res.status) {
+      case 404: return 'api_not_found';
+      case 401:
+      case 403: return 'unauthorized';
+      case 429: return 'rate_limited';
+      case 503: return 'no_key';
+      case 504: return 'timeout';
+      case 400: return reason === 'model_error' ? 'model_error' : 'invalid_request';
+      default: {
+        if (reason === 'model_error') return 'model_error';
+        if (reason === 'invalid_response') return 'invalid_response';
+        return res.status >= 500 ? 'server_error' : 'invalid_response';
+      }
+    }
+  }
+
+  /**
    * Async coach response: Claude first (via /api/coach), local engine as fallback.
-   * Always resolves with a string — never throws.
+   * Always resolves with { reply, source } — never throws.
+   * source is 'claude' when the reply came from the API, 'local-fallback' otherwise.
    * @param {string} text
-   * @returns {Promise<string>}
+   * @returns {Promise<{reply: string, source: 'claude'|'local-fallback'}>}
    */
   async function generateCoachResponseAsync(text) {
     const question = String(text || '').trim().slice(0, 800);
 
     // 1) Claude via the serverless endpoint
+    let res = null;
+    let err = null;
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 12000);
-      let res;
       try {
         res = await fetch('/api/coach', {
           method: 'POST',
@@ -1008,15 +1040,23 @@ const ASCEND_COACH = (() => {
       if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.ok === true && typeof data.reply === 'string' && data.reply.trim()) {
-          return data.reply.trim();
+          return { reply: data.reply.trim(), source: 'claude' };
         }
+        err = new Error('invalid response payload');
+        res = { status: 502, reason: 'invalid_response' };
+      } else if (res) {
+        // Preserve the server's reason (e.g. 'model_error') for classification.
+        const data = await res.json().catch(() => null);
+        res = { status: res.status, reason: data && data.reason ? data.reason : undefined };
       }
-    } catch (err) {
-      // network error, timeout, or malformed response — fall through to local
+    } catch (caught) {
+      err = caught;
     }
 
-    // 2) Local deterministic engine
-    return fallbackResponse(question);
+    // 2) Claude unavailable — make the failure observable, then use local
+    const errorType = classifyCoachError(res, err);
+    console.warn('[ASCEND Coach] Claude unavailable — using local fallback', errorType);
+    return { reply: fallbackResponse(question), source: 'local-fallback' };
   }
 
   /* ========== RENDERING ========== */
