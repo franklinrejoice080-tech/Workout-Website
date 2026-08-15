@@ -916,13 +916,13 @@ const ASCEND_COACH = (() => {
     }, 60);
   }
 
-  /* ========== AI INTEGRATION (Claude via /api/coach, local fallback) ========== */
+  /* ========== AI INTEGRATION (OpenRouter via /api/coach, local fallback) ========== */
 
   // Reference to the original keyword mock, captured at initialize() time.
   let originalCoachReply = null;
 
   /**
-   * Deterministic local fallback used whenever Claude is unavailable.
+   * Deterministic local fallback used whenever the AI provider is unavailable.
    * Mirrors the original window.coachReply override chain:
    * personalized topic engine first, then the keyword mock.
    * @param {string} text
@@ -1012,16 +1012,16 @@ const ASCEND_COACH = (() => {
   }
 
   /**
-   * Async coach response: Claude first (via /api/coach), local engine as fallback.
+   * Async coach response: OpenRouter first (via /api/coach), local engine as fallback.
    * Always resolves with { reply, source } — never throws.
-   * source is 'claude' when the reply came from the API, 'local-fallback' otherwise.
+   * source is 'openrouter' when the reply came from the API, 'local-fallback' otherwise.
    * @param {string} text
-   * @returns {Promise<{reply: string, source: 'claude'|'local-fallback'}>}
+   * @returns {Promise<{reply: string, source: 'openrouter'|'local-fallback'}>}
    */
   async function generateCoachResponseAsync(text) {
     const question = String(text || '').trim().slice(0, 800);
 
-    // 1) Claude via the serverless endpoint
+    // 1) OpenRouter via the serverless endpoint
     let res = null;
     let err = null;
     try {
@@ -1040,7 +1040,7 @@ const ASCEND_COACH = (() => {
       if (res && res.ok) {
         const data = await res.json().catch(() => null);
         if (data && data.ok === true && typeof data.reply === 'string' && data.reply.trim()) {
-          return { reply: data.reply.trim(), source: 'claude' };
+          return { reply: data.reply.trim(), source: 'openrouter' };
         }
         err = new Error('invalid response payload');
         res = { status: 502, reason: 'invalid_response' };
@@ -1053,9 +1053,9 @@ const ASCEND_COACH = (() => {
       err = caught;
     }
 
-    // 2) Claude unavailable — make the failure observable, then use local
+    // 2) AI unavailable — make the failure observable, then use the local engine
     const errorType = classifyCoachError(res, err);
-    console.warn('[ASCEND Coach] Claude unavailable — using local fallback', errorType);
+    console.warn('[ASCEND Coach] AI provider unavailable — using local fallback', errorType);
     return { reply: fallbackResponse(question), source: 'local-fallback' };
   }
 

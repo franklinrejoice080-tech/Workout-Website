@@ -423,8 +423,8 @@ section{padding:130px 0;}
   vertical-align:middle; white-space:nowrap;
 }
 .coach-status::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--gray);}
-.coach-status[data-state="claude"]{color:var(--green); background:rgba(40,199,111,0.08); border-color:rgba(40,199,111,0.25);}
-.coach-status[data-state="claude"]::before{background:var(--green); box-shadow:0 0 8px rgba(40,199,111,0.6);}
+.coach-status[data-state="openrouter"]{color:var(--green); background:rgba(40,199,111,0.08); border-color:rgba(40,199,111,0.25);}
+.coach-status[data-state="openrouter"]::before{background:var(--green); box-shadow:0 0 8px rgba(40,199,111,0.6);}
 .coach-status[data-state="thinking"]{color:var(--beige); background:rgba(232,222,209,0.08); border-color:rgba(232,222,209,0.25);}
 .coach-status[data-state="thinking"]::before{background:var(--red); animation:coachPulse 1.1s var(--ease) infinite;}
 @keyframes coachPulse{
