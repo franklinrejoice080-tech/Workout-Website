@@ -1,0 +1,320 @@
+/* =========================================
+   ASCEND — RESPONSIVE / MOBILE OVERRIDES
+   =========================================
+   Loaded LAST (after style.css + dashboard.css)
+   so these rules win the cascade. Every rule is
+   scoped inside a media query — desktop layout
+   is intentionally untouched.
+   ========================================= */
+
+img{height:auto;}
+
+/* ---------- GLOBAL MOBILE ---------- */
+@media (max-width: 1100px){
+  .nav-links{gap:16px;}
+  .nav-links a{font-size:13px;}
+}
+@media (max-width: 767px){
+  .wrap{padding:0 16px;}
+  section{padding:64px 0;}
+  .section-head{margin-bottom:32px; gap:14px;}
+  .section-desc{font-size:14px;}
+  .section-title{font-size:clamp(26px, 6.6vw, 34px);}
+}
+
+/* ---------- TOP NAV ---------- */
+/* 8 links + CTA can't fit below ~1024px — hide the link list and
+   surface the bottom nav earlier so tablet never loses navigation. */
+@media (max-width: 900px){
+  .nav-links{display:none;}
+  .nav{padding:14px 0;}
+  .nav.scrolled{padding:10px 0;}
+  .logo{font-size:19px;}
+  .nav-cta{gap:10px;}
+  .btn-ghost{font-size:13px; padding:8px 4px;}
+  .btn-solid{padding:9px 18px; font-size:13px;}
+}
+@media (max-width: 380px){
+  .btn-solid{padding:8px 14px;}
+  .btn-ghost{padding:8px 2px;}
+}
+
+/* ---------- BOTTOM MOBILE NAV ---------- */
+@media (max-width: 900px){
+  .bottom-nav{
+    display:flex; position:fixed; bottom:0; left:0; right:0; z-index:100;
+    background:rgba(17,17,17,0.92); backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    border-top:1px solid var(--line); padding:9px 4px 14px; justify-content:space-around;
+  }
+  .bottom-nav a{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; color:var(--gray); min-width:52px;}
+  .bottom-nav a.active{color:var(--red);}
+  .bottom-nav .ic{font-size:17px;}
+  body{padding-bottom:74px;}
+  section{padding:64px 0;}
+}
+@media (max-width: 380px){
+  .bottom-nav a{min-width:46px; font-size:9.5px;}
+}
+
+/* ---------- HERO ---------- */
+@media (max-width: 767px){
+  .hero{padding-top:110px; padding-bottom:56px;}
+  h1.headline{font-size:clamp(34px, 10vw, 44px);}
+  .sub{font-size:15px; margin-top:16px; line-height:1.55;}
+  .hero-actions{margin-top:28px; gap:12px;}
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary{width:100%; justify-content:center; padding:15px 24px; font-size:15px;}
+  .hero-creator{margin-top:26px;}
+  .creator-shell{padding:18px 20px; gap:16px;}
+  .creator-shell .section-title{font-size:26px;}
+  .hero-field{top:10%; width:54vmin; height:54vmin;}
+}
+
+/* ---------- DAILY WORKOUT CARD ---------- */
+@media (max-width: 767px){
+  .daily-card{grid-template-columns:1fr;}
+  .daily-media{min-height:170px;}
+  .daily-tag{top:14px; left:14px; padding:6px 12px; font-size:11px;}
+  .daily-title-overlay{bottom:16px; left:18px; right:18px;}
+  .daily-title-overlay h3{font-size:22px;}
+  .daily-body{padding:24px 20px; gap:20px;}
+  .daily-meta{gap:18px;}
+  .meta-item .n{font-size:19px;}
+  .ring-row{gap:16px;}
+  .ring-wrap{width:74px; height:74px;}
+  .ring-wrap svg{width:74px; height:74px;}
+  .ring-label{font-size:16px;}
+  .start-btn{padding:15px; font-size:15px;}
+}
+
+/* ---------- CATEGORY GRID ---------- */
+@media (max-width: 640px){
+  .cat-grid{grid-template-columns:1fr 1fr; gap:12px;}
+}
+@media (max-width: 360px){
+  .cat-grid{grid-template-columns:1fr;}
+}
+@media (max-width: 767px){
+  .cat-card{padding:20px;}
+  .cat-card p{min-height:0; margin-bottom:14px;}
+  .cat-emoji{font-size:24px; margin-bottom:14px;}
+  .cat-foot{padding-top:12px;}
+  .cat-arrow{top:18px; right:18px; width:30px; height:30px;}
+}
+@media (max-width: 380px){
+  .cat-card{padding:16px;}
+  .cat-card h4{font-size:16px;}
+}
+
+/* ---------- GENERATOR / BUILD YOUR PLAN ---------- */
+@media (max-width: 767px){
+  .gen-form{padding:26px 20px;}
+  .gen-form h3{font-size:21px;}
+  .gen-form>p{margin-bottom:22px;}
+  /* Single-column fields on mobile so nothing clips */
+  .form-row{grid-template-columns:1fr; gap:12px;}
+  .field label{font-size:11px;}
+  .field input, .field select{padding:11px 12px; font-size:14px;}
+  .gen-result{padding:26px 20px; max-height:none;}
+  .gen-submit{margin-top:18px; padding:15px;}
+}
+@media (max-width: 767px){
+  .chip{padding:8px 13px; font-size:12px;}
+}
+
+/* ---------- PROGRESS / DASHBOARD ---------- */
+@media (min-width: 961px) and (max-width: 1100px){
+  .dash-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width: 600px){
+  /* Compact 2-col stat grid — the XP card stays full-width below it */
+  .dash-grid{grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px;}
+  .dash-card{padding:16px;}
+  .dash-card .label{font-size:10px; margin-bottom:8px; gap:6px;}
+  .dash-card .val{font-size:clamp(22px, 7vw, 28px);}
+  .dash-card .delta{font-size:11px; margin-top:5px;}
+  .streak-motivation{font-size:11px;}
+  .xp-card{padding:18px;}
+  .xp-header{gap:12px; margin-bottom:14px;}
+  .xp-level-badge{padding:8px 14px; font-size:13px;}
+  .xp-title-group h3{font-size:17px;}
+  .xp-val-large{font-size:22px;}
+  .xp-sub-val{font-size:11px;}
+  .xp-progress-bar-container{height:11px;}
+  .xp-footer{font-size:12px;}
+  .xp-details{font-size:12px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;}
+}
+@media (max-width: 360px){
+  .dash-grid{gap:10px;}
+  .dash-card{padding:14px;}
+  .dash-card .val{font-size:clamp(20px, 6.5vw, 24px);}
+}
+
+/* Today's goal + weekly calendar */
+@media (max-width: 767px){
+  .goal-header .val{font-size:17px !important;}
+  .goal-meta{font-size:11px; gap:8px;}
+  .goal-meta span{padding:5px 10px;}
+}
+@media (max-width: 600px){
+  .weekly-calendar{gap:5px;}
+  .day-pill{padding:8px 2px; gap:6px;}
+  .day-icon{width:24px; height:24px; font-size:12px;}
+  .day-name{font-size:10px;}
+}
+
+/* Charts + recent workouts */
+@media (max-width: 767px){
+  .chart-card{padding:20px;}
+  .chart-card h4{font-size:14px; margin-bottom:14px;}
+  .bars{height:120px; gap:8px;}
+  .recent-workouts-card{padding:20px;}
+  .recent-workouts-list{gap:10px;}
+  .recent-workout-entry{padding:14px 16px;}
+  .recent-workout-title{font-size:14px;}
+  .recent-workout-meta{font-size:11px;}
+  .recent-workout-stats{gap:8px; font-size:11px;}
+  .recent-workout-stats span{padding:6px 10px;}
+}
+
+/* Achievements */
+@media (max-width: 600px){
+  .achievements-grid{gap:12px;}
+  .ach-card{padding:16px;}
+  .ach-icon{width:44px; height:44px; font-size:20px; margin-bottom:12px;}
+  .ach-title{font-size:15px;}
+  .ach-desc{min-height:0; font-size:11.5px;}
+  .ach-progress-text{font-size:11px; margin-top:10px;}
+  .ach-footer{margin-top:10px; padding-top:10px;}
+}
+
+/* ---------- CHALLENGES ---------- */
+@media (max-width: 767px){
+  .chal-card{padding:20px; min-height:0;}
+  .chal-card h4{font-size:17px; margin:14px 0 5px;}
+  .badge-icon{width:38px; height:38px; font-size:17px;}
+}
+
+/* ---------- NUTRITION ---------- */
+@media (max-width: 767px){
+  .tool-card{padding:20px;}
+  .tool-card h4{font-size:15px; margin-bottom:12px;}
+  .tool-result{padding:13px; font-size:12px;}
+}
+
+/* ---------- COMMUNITY ---------- */
+@media (max-width: 767px){
+  .post-media{height:150px;}
+  .post-body{padding:16px;}
+}
+
+/* ---------- MOTIVATION ---------- */
+@media (max-width: 767px){
+  .motivation{padding:56px 0;}
+  .quote-mark{font-size:42px;}
+  .quote-text{font-size:clamp(20px, 6vw, 26px);}
+}
+
+/* ---------- AI COACH ---------- */
+@media (max-width: 767px){
+  .coach-side{padding:24px 20px; gap:10px;}
+  .coach-main{height:min(440px, 62vh);}
+  .coach-msgs{padding:18px 14px; gap:12px;}
+  .coach-input{padding:12px 14px; gap:8px;}
+  .coach-input input{padding:12px 14px; font-size:14px; min-width:0;}
+  .coach-input button{width:44px; height:44px;}
+  .msg{max-width:92%; font-size:13px; padding:12px 14px;}
+  .suggest-chip{padding:11px 13px; font-size:12.5px;}
+  .coach-brief-main{padding:24px 20px;}
+  .coach-brief-side{padding:24px 20px; gap:16px;}
+  .coach-focus{margin-top:16px; padding:14px 16px;}
+  .coach-focus strong{font-size:18px;}
+  .coach-brief-main .btn-primary{margin-top:18px; padding:13px 22px;}
+  .coach-brief-stat b{font-size:17px;}
+}
+/* Never let a long message or URL push the chat wider than the viewport. */
+.msg{overflow-wrap:anywhere; min-width:0;}
+
+/* ---------- FOOTER ---------- */
+@media (max-width: 767px){
+  footer{padding:56px 0 24px;}
+  .foot-grid{gap:26px; margin-bottom:40px;}
+  .foot-col h5{margin-bottom:12px;}
+  .foot-col a{font-size:13px; margin-bottom:10px;}
+  .foot-bottom{padding-top:20px;}
+}
+
+/* ---------- MODALS ---------- */
+@media (max-width: 480px){
+  .modal-overlay{padding:14px;}
+  .auth-modal{padding:24px 20px; border-radius:20px;}
+  .auth-head h3{font-size:21px;}
+}
+/* User dropdown → bottom sheet so it never clips off-screen on phones */
+@media (max-width: 600px){
+  .user-dropdown{
+    position:fixed; left:14px; right:14px; bottom:82px; top:auto;
+    min-width:0; width:auto; max-height:55vh; overflow-y:auto;
+  }
+}
+
+/* ---------- WORKOUT SESSION OVERLAY ---------- */
+@media (max-width: 767px){
+  .workout-session-overlay{padding:12px;}
+  .workout-session-card{padding:20px 16px; border-radius:20px; max-height:92vh; overflow-y:auto;}
+  .workout-session-head{margin-bottom:18px;}
+  .workout-session-head h3{font-size:20px;}
+  .workout-session-meta{gap:10px; font-size:12px;}
+  .workout-session-meta span{padding:6px 10px;}
+  .workout-session-body{gap:12px;}
+  .workout-session-body .exercise-card{padding:16px;}
+  .workout-session-body .exercise-card h4{font-size:16px;}
+  .workout-session-body .exercise-card p{font-size:13px;}
+  .workout-session-actions{gap:8px;}
+  .workout-session-actions button{padding:11px 14px; font-size:12.5px;}
+  .modal-close{top:12px; right:12px; width:34px; height:34px; font-size:17px;}
+  .tetris-progress{margin-top:14px; padding-top:14px; gap:10px;}
+  .tetris-grid{gap:5px; padding:12px; width:min(200px,100%);}
+  .tetris-label{font-size:11px;}
+}
+
+/* ---------- WORKOUT DISCOVERY MODAL ---------- */
+@media (max-width: 767px){
+  .ascend-discovery-overlay{padding:12px;}
+  .ascend-discovery-card{padding:24px 18px; border-radius:22px;}
+  .ascend-disc-title{font-size:24px;}
+  /* minmax(280px,1fr) can't shrink below 280px and pushes the card wider
+     than a phone — allow tracks to fall back to 100% instead. */
+  .ascend-disc-grid{grid-template-columns:repeat(auto-fit, minmax(min(280px, 100%), 1fr));}
+  .ascend-disc-workout-card{padding:18px;}
+  .ascend-disc-workout-name{font-size:16px;}
+  .ascend-disc-detail-title{font-size:26px;}
+  .ascend-disc-detail-stats-bar{grid-template-columns:1fr 1fr;}
+  .ascend-disc-detail-ex-item{padding:12px 14px; gap:10px;}
+  .ascend-disc-ex-meta span{font-size:11px; padding:3px 8px;}
+}
+
+/* ---------- LEVEL-UP MODAL ---------- */
+@media (max-width: 400px){
+  .ascend-levelup-card{padding:28px 20px 24px; border-radius:20px;}
+  .ascend-levelup-level-num{font-size:32px;}
+  .ascend-levelup-desc{font-size:13px;}
+}
+
+/* ---------- BODY MEASUREMENTS ---------- */
+@media (max-width: 600px){
+  .body-summary{grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:12px;}
+  .body-card-value{font-size:20px;}
+  .body-summary-text{font-size:12px;}
+  .body-verdict{font-size:12px;}
+}
+@media (max-width: 600px){
+  .body-grid{grid-template-columns:repeat(2,1fr); gap:10px;}
+  .body-item{padding:14px;}
+  .body-item-value{font-size:15px;}
+}
+@media (max-width: 340px){
+  .body-summary{grid-template-columns:1fr;}
+  .body-grid{grid-template-columns:1fr;}
+}
